@@ -100,6 +100,28 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
     }
 };
 
+export const generateImage = async (prompt: string): Promise<string> => {
+    try {
+        const ai = getAi();
+        const response = await ai.models.generateImages({
+            model: 'imagen-4.0-generate-001',
+            prompt: prompt,
+            config: {
+                numberOfImages: 1,
+                outputMimeType: 'image/jpeg',
+            },
+        });
+        const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
+        return `data:image/jpeg;base64,${base64ImageBytes}`;
+    } catch (error) {
+        console.error("Error generating image:", error);
+        if (error instanceof Error && error.message.includes("API Key")) {
+           throw error;
+        }
+        throw new Error("Failed to generate image. Please try again.");
+    }
+};
+
 export const createChat = (): Chat => {
     const ai = getAi(); // This check now happens when the component initializes the chat
     return ai.chats.create({

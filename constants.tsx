@@ -1,15 +1,7 @@
 
-import React from 'react';
+import React, { lazy } from 'react';
 import { Tool, ToolCategory } from './types';
 import { SummarizeIcon, GrammarIcon, OcrIcon, UnitConvertIcon, CurrencyIcon, PdfIcon, ChatIcon } from './components/icons';
-
-import TextSummarizer from './tools/TextSummarizer';
-import GrammarChecker from './tools/GrammarChecker';
-import ImageToTextConverter from './tools/ImageToTextConverter';
-import UnitConverter from './tools/UnitConverter';
-import CurrencyConverter from './tools/CurrencyConverter';
-import PdfMerger from './tools/PdfMerger';
-import AiChatBot from './tools/AiChatBot';
 
 export const TOOLS: Tool[] = [
     {
@@ -18,7 +10,7 @@ export const TOOLS: Tool[] = [
         description: 'Summarize long text into concise key points using AI.',
         icon: <SummarizeIcon className="w-8 h-8 text-primary" />,
         category: ToolCategory.AI,
-        component: TextSummarizer,
+        component: lazy(() => import('./tools/TextSummarizer')),
         isFeatured: true,
     },
     {
@@ -27,7 +19,7 @@ export const TOOLS: Tool[] = [
         description: 'Fix grammatical errors and spelling mistakes in your text.',
         icon: <GrammarIcon className="w-8 h-8 text-primary" />,
         category: ToolCategory.AI,
-        component: GrammarChecker,
+        component: lazy(() => import('./tools/GrammarChecker')),
         isFeatured: true,
     },
     {
@@ -36,7 +28,7 @@ export const TOOLS: Tool[] = [
         description: 'Extract text from any image with high accuracy.',
         icon: <OcrIcon className="w-8 h-8 text-primary" />,
         category: ToolCategory.AI,
-        component: ImageToTextConverter,
+        component: lazy(() => import('./tools/ImageToTextConverter')),
         isFeatured: true,
     },
     {
@@ -45,7 +37,7 @@ export const TOOLS: Tool[] = [
         description: 'Convert various units of length, weight, temperature, and more.',
         icon: <UnitConvertIcon className="w-8 h-8 text-primary" />,
         category: ToolCategory.CONVERTERS,
-        component: UnitConverter,
+        component: lazy(() => import('./tools/UnitConverter')),
         isFeatured: true,
     },
     {
@@ -54,7 +46,7 @@ export const TOOLS: Tool[] = [
         description: 'Convert currencies with the latest exchange rates.',
         icon: <CurrencyIcon className="w-8 h-8 text-primary" />,
         category: ToolCategory.CONVERTERS,
-        component: CurrencyConverter,
+        component: lazy(() => import('./tools/CurrencyConverter')),
         isFeatured: true,
     },
     {
@@ -63,7 +55,7 @@ export const TOOLS: Tool[] = [
         description: 'Combine multiple PDF files into a single document easily.',
         icon: <PdfIcon className="w-8 h-8 text-primary" />,
         category: ToolCategory.DOCUMENTS,
-        component: PdfMerger,
+        component: lazy(() => import('./tools/PdfMerger')),
         isFeatured: true,
     },
     {
@@ -72,7 +64,7 @@ export const TOOLS: Tool[] = [
         description: 'Get instant answers and suggestions for any question.',
         icon: <ChatIcon className="w-8 h-8 text-primary" />,
         category: ToolCategory.AI,
-        component: AiChatBot,
+        component: lazy(() => import('./tools/AiChatBot')),
         isFeatured: true,
     },
 ];

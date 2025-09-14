@@ -14,6 +14,6 @@ export interface Tool {
     description: string;
     icon: React.ReactNode;
     category: ToolCategory;
-    component: React.ComponentType;
+    component: React.LazyExoticComponent<React.ComponentType<any>>;
     isFeatured?: boolean;
 }

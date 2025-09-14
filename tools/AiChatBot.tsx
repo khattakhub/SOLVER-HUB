@@ -16,8 +16,13 @@ const AiChatBot: React.FC = () => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        setChat(createChat());
-        setMessages([{ sender: 'bot', text: "Hello! I'm the AI Answer Bot. How can I help you today?" }]);
+        try {
+            setChat(createChat());
+            setMessages([{ sender: 'bot', text: "Hello! I'm the AI Answer Bot. How can I help you today?" }]);
+        } catch (e) {
+            const errorText = e instanceof Error ? e.message : 'Sorry, something went wrong during initialization.';
+            setMessages([{ sender: 'bot', text: `Error: ${errorText}` }]);
+        }
     }, []);
 
     useEffect(() => {
@@ -81,12 +86,12 @@ const AiChatBot: React.FC = () => {
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                         placeholder="Ask me anything..."
-                        disabled={isLoading}
+                        disabled={isLoading || !chat}
                         className="flex-grow p-3 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light"
                     />
                     <button
                         onClick={handleSend}
-                        disabled={isLoading || !input.trim()}
+                        disabled={isLoading || !input.trim() || !chat}
                         className="bg-primary text-white font-semibold px-6 py-2 rounded-r-md hover:bg-primary-dark transition-colors disabled:bg-gray-400"
                     >
                         Send

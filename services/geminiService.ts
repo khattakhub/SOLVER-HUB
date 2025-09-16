@@ -11,7 +11,7 @@ const initializeAi = (): void => {
         return;
     }
 
-    // Fix: Per coding guidelines, API key must be from process.env.API_KEY. This also resolves the TypeScript error with import.meta.env.
+    // Fix: Use `process.env.API_KEY` as per coding guidelines, which resolves the TypeScript error.
     const apiKey = process.env.API_KEY;
 
     if (!apiKey) {

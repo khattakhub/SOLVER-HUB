@@ -2,7 +2,7 @@
 
 import React, { lazy } from 'react';
 import { Tool, ToolCategory } from './types';
-import { SummarizeIcon, GrammarIcon, OcrIcon, UnitConvertIcon, CurrencyIcon, PdfIcon, ChatIcon } from './components/icons';
+import { SummarizeIcon, GrammarIcon, OcrIcon, UnitConvertIcon, CurrencyIcon, PdfIcon, ChatIcon, ImageIcon } from './components/icons';
 
 export const TOOLS: Tool[] = [
     {
@@ -31,6 +31,15 @@ export const TOOLS: Tool[] = [
         category: ToolCategory.AI,
         component: lazy(() => import('./tools/ImageToTextConverter')),
         isFeatured: true,
+    },
+    {
+        id: 'ai-image-generator',
+        name: 'AI Image Generator',
+        description: 'Create unique images from text descriptions using AI.',
+        icon: <ImageIcon className="w-8 h-8 text-primary" />,
+        category: ToolCategory.AI,
+        component: lazy(() => import('./tools/ImageGenerator')),
+        isFeatured: false,
     },
     {
         id: 'unit-converter',

@@ -1,7 +1,6 @@
 import React from 'react';
 
 const futureTools = [
-    { name: 'AI Image Generator', description: 'Create stunning images from text prompts.' },
     { name: 'Video Summarizer', description: 'Get key points from long videos instantly.' },
     { name: 'Code Formatter', description: 'Automatically format code in various languages.' },
     { name: 'PDF Split & Compress', description: 'More advanced tools for PDF management.' },

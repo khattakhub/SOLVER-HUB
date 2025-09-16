@@ -2,10 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants';
 import ToolCard from '../components/ToolCard';
-import { SOCIAL_LINKS } from '../constants';
+import { useSiteSettings } from '../contexts/SiteSettingsContext';
 
 const HomePage: React.FC = () => {
     const featuredTools = TOOLS.filter(tool => tool.isFeatured);
+    const { settings } = useSiteSettings();
+    const socialLinks = settings.socialLinks;
+
 
     const HeroSection = () => (
         <section className="bg-white dark:bg-dark py-20 sm:py-24 lg:py-32 transition-colors duration-300">
@@ -76,7 +79,7 @@ const HomePage: React.FC = () => {
               </div>
             </form>
              <div className="flex justify-center space-x-6 mt-8">
-                {Object.entries(SOCIAL_LINKS).map(([name, link]) => (
+                {Object.entries(socialLinks).filter(([, link]) => link && link.trim() !== '' && link.trim() !== '#').map(([name, link]) => (
                     <a key={name} href={link} target="_blank" rel="noopener noreferrer" className="text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors">
                         <span className="capitalize text-lg font-medium">{name}</span>
                     </a>
@@ -88,7 +91,7 @@ const HomePage: React.FC = () => {
     );
 
     return (
-        <div>
+        <div className="fade-in">
             <HeroSection />
             <FeaturedToolsSection />
             <AboutSection />

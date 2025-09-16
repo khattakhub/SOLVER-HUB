@@ -21,7 +21,7 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] bg-light dark:bg-dark transition-colors duration-300">
+        <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] bg-light dark:bg-dark transition-colors duration-300 fade-in">
             <div className="w-full max-w-md p-8 space-y-8 bg-white dark:bg-slate-800 rounded-xl shadow-lg border dark:border-slate-700">
                 <div className="text-center">
                     <div className="inline-flex justify-center">

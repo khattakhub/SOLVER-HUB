@@ -72,7 +72,7 @@ const CurrencyConverter: React.FC = () => {
             )}
             {error && (
                 <div className="w-full p-4 bg-red-100 text-red-700 rounded-md border border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-700">
-                    <p><strong>Error:</strong> {error}</p>
+                    <p className="whitespace-pre-wrap"><strong>Error:</strong> {error}</p>
                 </div>
             )}
             {result && !isLoading && (

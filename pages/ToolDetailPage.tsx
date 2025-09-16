@@ -8,7 +8,7 @@ const ToolDetailPage: React.FC = () => {
 
     if (!tool) {
         return (
-            <div className="bg-white dark:bg-dark py-16 transition-colors duration-300">
+            <div className="bg-white dark:bg-dark py-16 transition-colors duration-300 fade-in">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
                     <h1 className="text-3xl font-bold text-dark dark:text-light">Tool Not Found</h1>
                     <p className="mt-4 text-secondary dark:text-slate-400">The tool you are looking for does not exist.</p>
@@ -23,7 +23,7 @@ const ToolDetailPage: React.FC = () => {
     const ToolComponent = tool.component;
 
     return (
-        <div className="bg-sky-50 dark:bg-slate-900 min-h-full py-12 sm:py-16 transition-colors duration-300">
+        <div className="bg-sky-50 dark:bg-slate-900 min-h-full py-12 sm:py-16 transition-colors duration-300 fade-in">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="max-w-4xl mx-auto">
                     <Link to="/tools" className="text-primary hover:underline mb-6 inline-block font-semibold">

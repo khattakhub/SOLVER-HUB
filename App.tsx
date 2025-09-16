@@ -10,6 +10,8 @@ const ToolDetailPage = lazy(() => import('./pages/ToolDetailPage'));
 const FutureToolsPage = lazy(() => import('./pages/FutureToolsPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
+const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 
 
 const LoadingSpinner: React.FC = () => (
@@ -31,6 +33,8 @@ const App: React.FC = () => {
                             <Route path="/tools/:toolId" element={<ToolDetailPage />} />
                             <Route path="/future" element={<FutureToolsPage />} />
                             <Route path="/login" element={<LoginPage />} />
+                            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
                             <Route 
                                 path="/admin" 
                                 element={

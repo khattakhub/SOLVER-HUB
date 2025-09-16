@@ -11,7 +11,7 @@ const futureTools = [
 
 const FutureToolsPage: React.FC = () => {
     return (
-        <div className="bg-white dark:bg-dark py-12 sm:py-16 transition-colors duration-300">
+        <div className="bg-white dark:bg-dark py-12 sm:py-16 transition-colors duration-300 fade-in">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-extrabold text-dark dark:text-light tracking-tight">Future Tools</h1>

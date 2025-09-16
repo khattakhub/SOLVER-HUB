@@ -9,7 +9,16 @@ const getAi = (): GoogleGenAI => {
     }
     if (!process.env.API_KEY) {
         // This error will be thrown only when an AI function is called, not on module import.
-        throw new Error("AI service is not configured. Please contact the site administrator to provide an API Key.");
+        const helpfulError = `AI service is not configured. The application requires a Google Gemini API Key to function.
+
+Please ensure the 'API_KEY' environment variable is set in your deployment environment.
+
+For example, if deploying on Vercel:
+1. Go to your Project Settings.
+2. Navigate to 'Environment Variables'.
+3. Add a variable named 'API_KEY' with your key as the value.
+4. Redeploy your application.`;
+        throw new Error(helpfulError);
     }
     aiInstance = new GoogleGenAI({ apiKey: process.env.API_KEY });
     return aiInstance;

@@ -1,4 +1,5 @@
 
+
 import React, { lazy } from 'react';
 import { Tool, ToolCategory } from './types';
 import { SummarizeIcon, GrammarIcon, OcrIcon, UnitConvertIcon, CurrencyIcon, PdfIcon, ChatIcon } from './components/icons';
@@ -74,9 +75,3 @@ export const NAV_LINKS = [
     { name: 'All Tools', path: '/tools' },
     { name: 'Future Tools', path: '/future' }
 ];
-
-export const SOCIAL_LINKS = {
-    twitter: '#',
-    github: '#',
-    linkedin: '#',
-};

@@ -2,26 +2,71 @@ import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 
 // A singleton pattern for the AI instance to avoid re-initialization
 let aiInstance: GoogleGenAI | null = null;
+let apiKeyError: Error | null = null;
 
-// FIX: Updated getAi function to use process.env.API_KEY and be compliant with coding guidelines.
-// This resolves the TypeScript error with `import.meta.env` and removes non-compliant error messages and comments.
-const getAi = (): GoogleGenAI => {
-    if (aiInstance) {
-        return aiInstance;
+// This function initializes the AI service and caches the instance or any errors.
+const initializeAi = (): void => {
+    // Only run initialization once.
+    if (aiInstance || apiKeyError) {
+        return;
     }
-    // Per the guidelines, the API key must be retrieved from `process.env.API_KEY`.
+
+    // Fix: Per coding guidelines, API key must be from process.env.API_KEY. This also resolves the TypeScript error with import.meta.env.
     const apiKey = process.env.API_KEY;
 
     if (!apiKey) {
-        // This error will be caught by the calling functions and a generic message will be shown to the user.
-        // It avoids mentioning "API Key" to prevent leaking implementation details, following security best practices and guidelines.
-        throw new Error("AI service is not properly configured.");
+        // Create a detailed, helpful error message for the user.
+        const errorMessage = `
+AI service is not configured. The application requires a Google Gemini API Key to function.
+
+Please ensure the 'API_KEY' environment variable is set in your deployment environment.
+
+For example, if deploying on Vercel:
+1. Go to your Project Settings.
+2. Navigate to 'Environment Variables'.
+3. Add a variable named 'API_KEY' with your key as the value.
+4. Redeploy your application.
+        `;
+        apiKeyError = new Error(errorMessage.trim());
+        return;
     }
-    aiInstance = new GoogleGenAI({ apiKey });
+
+    try {
+        aiInstance = new GoogleGenAI({ apiKey });
+    } catch (error) {
+        console.error("Error initializing GoogleGenAI:", error);
+        apiKeyError = new Error("Failed to initialize the AI service. Please check the console for details.");
+    }
+};
+
+
+const getAi = (): GoogleGenAI => {
+    // Initialize on first call.
+    initializeAi();
+
+    if (apiKeyError) {
+        throw apiKeyError;
+    }
+    if (!aiInstance) {
+        // This should not happen if initialization logic is correct, but it's a safeguard.
+        throw new Error("AI service could not be initialized.");
+    }
     return aiInstance;
 };
 
 const model = 'gemini-2.5-flash';
+
+// Helper function to handle API errors consistently.
+const handleApiError = (error: unknown, defaultMessage: string): never => {
+    console.error(defaultMessage, error);
+    // If it's the specific API key configuration error, re-throw it to be displayed in the UI.
+    if (error instanceof Error && error.message.includes("AI service is not configured")) {
+       throw error;
+    }
+    // For other errors, throw a more generic message.
+    throw new Error(`${defaultMessage}. Please try again.`);
+};
+
 
 export const summarizeText = async (text: string): Promise<string> => {
     try {
@@ -33,11 +78,7 @@ export const summarizeText = async (text: string): Promise<string> => {
         });
         return response.text;
     } catch (error) {
-        console.error("Error summarizing text:", error);
-        if (error instanceof Error && error.message.includes("API Key")) {
-           throw error;
-        }
-        throw new Error("Failed to summarize text. Please try again.");
+        handleApiError(error, "Failed to summarize text");
     }
 };
 
@@ -51,11 +92,7 @@ export const checkGrammar = async (text: string): Promise<string> => {
         });
         return response.text;
     } catch (error) {
-        console.error("Error checking grammar:", error);
-        if (error instanceof Error && error.message.includes("API Key")) {
-           throw error;
-        }
-        throw new Error("Failed to check grammar. Please try again.");
+        handleApiError(error, "Failed to check grammar");
     }
 };
 
@@ -76,11 +113,7 @@ export const getTextFromImage = async (base64Image: string, mimeType: string): P
         });
         return response.text;
     } catch (error) {
-        console.error("Error extracting text from image:", error);
-        if (error instanceof Error && error.message.includes("API Key")) {
-           throw error;
-        }
-        throw new Error("Failed to extract text from image. Please try again.");
+        handleApiError(error, "Failed to extract text from image");
     }
 };
 
@@ -98,11 +131,7 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
         }
         return numericResult.toFixed(2);
     } catch (error) {
-        console.error("Error converting currency:", error);
-        if (error instanceof Error && error.message.includes("API Key")) {
-           throw error;
-        }
-        throw new Error("Failed to convert currency. Please try again.");
+        handleApiError(error, "Failed to convert currency");
     }
 };
 
@@ -120,11 +149,7 @@ export const generateImage = async (prompt: string): Promise<string> => {
         const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
         return `data:image/jpeg;base64,${base64ImageBytes}`;
     } catch (error) {
-        console.error("Error generating image:", error);
-        if (error instanceof Error && error.message.includes("API Key")) {
-           throw error;
-        }
-        throw new Error("Failed to generate image. Please try again.");
+        handleApiError(error, "Failed to generate image");
     }
 };
 

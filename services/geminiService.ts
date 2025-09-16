@@ -3,24 +3,21 @@ import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 // A singleton pattern for the AI instance to avoid re-initialization
 let aiInstance: GoogleGenAI | null = null;
 
+// FIX: Updated getAi function to use process.env.API_KEY and be compliant with coding guidelines.
+// This resolves the TypeScript error with `import.meta.env` and removes non-compliant error messages and comments.
 const getAi = (): GoogleGenAI => {
     if (aiInstance) {
         return aiInstance;
     }
-    if (!process.env.API_KEY) {
-        // This error will be thrown only when an AI function is called, not on module import.
-        const helpfulError = `AI service is not configured. The application requires a Google Gemini API Key to function.
+    // Per the guidelines, the API key must be retrieved from `process.env.API_KEY`.
+    const apiKey = process.env.API_KEY;
 
-Please ensure the 'API_KEY' environment variable is set in your deployment environment.
-
-For example, if deploying on Vercel:
-1. Go to your Project Settings.
-2. Navigate to 'Environment Variables'.
-3. Add a variable named 'API_KEY' with your key as the value.
-4. Redeploy your application.`;
-        throw new Error(helpfulError);
+    if (!apiKey) {
+        // This error will be caught by the calling functions and a generic message will be shown to the user.
+        // It avoids mentioning "API Key" to prevent leaking implementation details, following security best practices and guidelines.
+        throw new Error("AI service is not properly configured.");
     }
-    aiInstance = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    aiInstance = new GoogleGenAI({ apiKey });
     return aiInstance;
 };
 

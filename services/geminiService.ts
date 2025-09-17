@@ -12,7 +12,7 @@ const initializeAi = (): void => {
     }
 
     // Fix: Use process.env.API_KEY as per coding guidelines.
-    import.meta.env.VITE_API_KEY
+    const apiKey = process.env.VITE_API_KEY
 
     if (!apiKey) {
         // Create a detailed, helpful error message for the user.

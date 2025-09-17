@@ -1,6 +1,5 @@
 import React from 'react';
-// Fix: Use namespace import for react-router-dom to avoid module resolution errors.
-import * as ReactRouterDOM from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants';
 import ToolCard from '../components/ToolCard';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
@@ -21,12 +20,12 @@ const HomePage: React.FC = () => {
                     Access a curated collection of powerful AI tools, converters, and utilities designed to simplify your tasks and boost productivity.
                 </p>
                 <div className="mt-10 flex justify-center space-x-4">
-                    <ReactRouterDOM.Link to="/tools" className="bg-primary text-white font-semibold px-8 py-3 rounded-md hover:bg-primary-dark transition-colors duration-300 shadow-lg">
+                    <Link to="/tools" className="bg-primary text-white font-semibold px-8 py-3 rounded-md hover:bg-primary-dark transition-colors duration-300 shadow-lg">
                         Explore All Tools
-                    </ReactRouterDOM.Link>
-                    <ReactRouterDOM.Link to="/future" className="bg-gray-200 text-secondary font-semibold px-8 py-3 rounded-md hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 transition-colors duration-300">
+                    </Link>
+                    <Link to="/future" className="bg-gray-200 text-secondary font-semibold px-8 py-3 rounded-md hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 transition-colors duration-300">
                         Upcoming Features
-                    </ReactRouterDOM.Link>
+                    </Link>
                 </div>
             </div>
         </section>

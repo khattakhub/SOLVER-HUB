@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-// Fix: Use namespace import for react-router-dom to avoid module resolution errors.
-import * as ReactRouterDOM from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { TOOLS } from '../constants';
 import { Tool } from '../types';
@@ -22,7 +21,7 @@ type AdminTab = 'dashboard' | 'tools' | 'settings' | 'content';
 
 const AdminPage: React.FC = () => {
     const { logout } = useAuth();
-    const navigate = ReactRouterDOM.useNavigate();
+    const navigate = useNavigate();
     const [tools, setTools] = useState<Tool[]>(TOOLS);
     const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);

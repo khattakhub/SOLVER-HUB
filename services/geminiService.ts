@@ -11,18 +11,18 @@ const initializeAi = (): void => {
         return;
     }
 
-    // Use process.env.API_KEY as per the coding guidelines.
-    const apiKey = process.env.API_KEY;
+    // Use process.env.VITE_API_KEY as per the coding guidelines.
+    const apiKey = process.env.VITE_API_KEY;
 
     if (!apiKey) {
         const errorMessage = `AI service is not configured. The application requires a Google Gemini API Key to function.
 
-Please ensure the 'API_KEY' environment variable is set in your deployment environment.
+Please ensure the 'VITE_API_KEY' environment variable is set in your deployment environment.
 
 For example, if deploying on Vercel:
 1. Go to your Project Settings.
 2. Navigate to 'Environment Variables'.
-3. Add a variable named 'API_KEY' with your key as the value.
+3. Add a variable named 'VITE_API_KEY' with your key as the value.
 4. Redeploy your application.`;
         apiKeyError = new Error(errorMessage);
         return;

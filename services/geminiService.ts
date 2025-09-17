@@ -8,6 +8,8 @@ let apiKeyError: Error | null = null;
 const initializeAi = (): void => {
     // Only run initialization once.
     if (aiInstance || apiKeyError) {
+    const initializeAi = (): void => {
+    if (apiKeyError) {
         return;
     }
 
@@ -26,6 +28,11 @@ For example, if deploying on Vercel:
 4. Redeploy your application.`;
         apiKeyError = new Error(errorMessage);
         return;
+    }
+
+    // Your AI initialization logic here
+};
+
     }
 
     try {

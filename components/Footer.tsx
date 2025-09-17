@@ -21,6 +21,7 @@ const Footer: React.FC = () => {
                          <div className="flex space-x-4">
                             <Link to="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
                             <Link to="/terms-of-service" className="hover:text-primary transition-colors">Terms of Service</Link>
+                            <Link to="/sitemap" className="hover:text-primary transition-colors">Sitemap</Link>
                          </div>
                     </div>
 

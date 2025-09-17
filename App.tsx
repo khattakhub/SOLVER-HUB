@@ -12,6 +12,7 @@ const AdminPage = lazy(() => import('./pages/AdminPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
+const SitemapPage = lazy(() => import('./pages/SitemapPage'));
 
 
 const LoadingSpinner: React.FC = () => (
@@ -35,6 +36,7 @@ const App: React.FC = () => {
                             <Route path="/login" element={<LoginPage />} />
                             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                             <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+                            <Route path="/sitemap" element={<SitemapPage />} />
                             <Route 
                                 path="/admin" 
                                 element={

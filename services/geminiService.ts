@@ -11,12 +11,20 @@ const initializeAi = (): void => {
         return;
     }
 
-    // Fix: Use process.env.API_KEY as per the coding guidelines. This resolves the TypeScript error.
+    // Use process.env.API_KEY as per the coding guidelines.
     const apiKey = process.env.API_KEY;
 
     if (!apiKey) {
-        // Fix: Simplified error message to be less prescriptive and align with guidelines.
-        apiKeyError = new Error("AI service is not configured. The API key is missing.");
+        const errorMessage = `AI service is not configured. The application requires a Google Gemini API Key to function.
+
+Please ensure the 'API_KEY' environment variable is set in your deployment environment.
+
+For example, if deploying on Vercel:
+1. Go to your Project Settings.
+2. Navigate to 'Environment Variables'.
+3. Add a variable named 'API_KEY' with your key as the value.
+4. Redeploy your application.`;
+        apiKeyError = new Error(errorMessage);
         return;
     }
 

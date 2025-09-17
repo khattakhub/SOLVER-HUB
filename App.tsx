@@ -1,8 +1,10 @@
 import React, { Suspense, lazy } from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+// Fix: Use namespace import for react-router-dom to avoid module resolution errors.
+import * as ReactRouterDOM from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import ApiKeyErrorBanner from './components/ApiKeyErrorBanner';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const ToolsPage = lazy(() => import('./pages/ToolsPage'));
@@ -23,21 +25,22 @@ const LoadingSpinner: React.FC = () => (
 
 const App: React.FC = () => {
     return (
-        <HashRouter>
+        <ReactRouterDOM.HashRouter>
             <div className="flex flex-col min-h-screen font-sans">
                 <Header />
+                <ApiKeyErrorBanner />
                 <main className="flex-grow">
                     <Suspense fallback={<LoadingSpinner />}>
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/tools" element={<ToolsPage />} />
-                            <Route path="/tools/:toolId" element={<ToolDetailPage />} />
-                            <Route path="/future" element={<FutureToolsPage />} />
-                            <Route path="/login" element={<LoginPage />} />
-                            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-                            <Route path="/sitemap" element={<SitemapPage />} />
-                            <Route 
+                        <ReactRouterDOM.Routes>
+                            <ReactRouterDOM.Route path="/" element={<HomePage />} />
+                            <ReactRouterDOM.Route path="/tools" element={<ToolsPage />} />
+                            <ReactRouterDOM.Route path="/tools/:toolId" element={<ToolDetailPage />} />
+                            <ReactRouterDOM.Route path="/future" element={<FutureToolsPage />} />
+                            <ReactRouterDOM.Route path="/login" element={<LoginPage />} />
+                            <ReactRouterDOM.Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                            <ReactRouterDOM.Route path="/terms-of-service" element={<TermsOfServicePage />} />
+                            <ReactRouterDOM.Route path="/sitemap" element={<SitemapPage />} />
+                            <ReactRouterDOM.Route 
                                 path="/admin" 
                                 element={
                                     <ProtectedRoute>
@@ -45,12 +48,12 @@ const App: React.FC = () => {
                                     </ProtectedRoute>
                                 } 
                             />
-                        </Routes>
+                        </ReactRouterDOM.Routes>
                     </Suspense>
                 </main>
                 <Footer />
             </div>
-        </HashRouter>
+        </ReactRouterDOM.HashRouter>
     );
 };
 

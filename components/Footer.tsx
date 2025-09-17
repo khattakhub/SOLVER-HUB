@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+// Fix: Use namespace import for react-router-dom to avoid module resolution errors.
+import * as ReactRouterDOM from 'react-router-dom';
 import { CodeIcon } from './icons';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
 
@@ -19,9 +20,9 @@ const Footer: React.FC = () => {
                     <div className="text-sm text-gray-400 flex flex-col items-center space-y-2">
                          <p>&copy; {new Date().getFullYear()} SolverHub. All rights reserved.</p>
                          <div className="flex space-x-4">
-                            <Link to="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-                            <Link to="/terms-of-service" className="hover:text-primary transition-colors">Terms of Service</Link>
-                            <Link to="/sitemap" className="hover:text-primary transition-colors">Sitemap</Link>
+                            <ReactRouterDOM.Link to="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</ReactRouterDOM.Link>
+                            <ReactRouterDOM.Link to="/terms-of-service" className="hover:text-primary transition-colors">Terms of Service</ReactRouterDOM.Link>
+                            <ReactRouterDOM.Link to="/sitemap" className="hover:text-primary transition-colors">Sitemap</ReactRouterDOM.Link>
                          </div>
                     </div>
 
@@ -33,7 +34,7 @@ const Footer: React.FC = () => {
                                 </a>
                             ))}
                         </div>
-                         <Link to="/login" className="text-sm text-gray-500 hover:text-primary transition-colors">Admin</Link>
+                         <ReactRouterDOM.Link to="/login" className="text-sm text-gray-500 hover:text-primary transition-colors">Admin</ReactRouterDOM.Link>
                     </div>
                 </div>
             </div>

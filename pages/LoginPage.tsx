@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// Fix: Use namespace import for react-router-dom to avoid module resolution errors.
+import * as ReactRouterDOM from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { CodeIcon } from '../components/icons';
 
@@ -7,7 +8,7 @@ const LoginPage: React.FC = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const { login } = useAuth();
-    const navigate = useNavigate();
+    const navigate = ReactRouterDOM.useNavigate();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

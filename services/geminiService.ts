@@ -11,8 +11,8 @@ const initializeAi = (): void => {
         return;
     }
 
-    // Fix: Use process.env.API_KEY as per coding guidelines.
-    const apiKey = process.env.VITE_API_KEY
+    // Use process.env.API_KEY as per coding guidelines.
+    const apiKey = process.env.API_KEY
 
     if (!apiKey) {
         // Create a detailed, helpful error message for the user.

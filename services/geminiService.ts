@@ -12,8 +12,7 @@ const initializeAi = (): void => {
     }
 
     // Use process.env.API_KEY as per the coding guidelines.
-    const apiKey = process.env.API_KEY;
-
+    const apiKey = import.meta.env.VITE_API_KEY;
     if (!apiKey) {
         const errorMessage = `AI service is not configured. The application requires a Google Gemini API Key to function.
 

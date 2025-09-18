@@ -13,11 +13,11 @@ const Footer: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                     <div className="flex items-center space-x-2 justify-center md:justify-start">
                         <CodeIcon className="w-7 h-7 text-primary"/>
-                        <span className="text-xl font-bold">SolverHub</span>
+                        <span className="text-xl font-bold">{settings.siteName}</span>
                     </div>
                     
                     <div className="text-sm text-gray-400 flex flex-col items-center space-y-2">
-                         <p>&copy; {new Date().getFullYear()} SolverHub. All rights reserved.</p>
+                         <p>&copy; {new Date().getFullYear()} {settings.siteName}. All rights reserved.</p>
                          <div className="flex space-x-4">
                             <Link to="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
                             <Link to="/terms-of-service" className="hover:text-primary transition-colors">Terms of Service</Link>

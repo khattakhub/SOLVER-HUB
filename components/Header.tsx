@@ -3,9 +3,11 @@ import { Link, NavLink } from 'react-router-dom';
 import { NAV_LINKS } from '../constants';
 import { MenuIcon, XIcon, CodeIcon } from './icons';
 import ThemeToggle from './ThemeToggle';
+import { useSiteSettings } from '../contexts/SiteSettingsContext';
 
 const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { settings } = useSiteSettings();
 
     return (
         <header className="bg-white shadow-md sticky top-0 z-50 dark:bg-dark dark:border-b dark:border-slate-800 transition-colors duration-300">
@@ -13,7 +15,7 @@ const Header: React.FC = () => {
                 <div className="flex items-center justify-between h-16">
                     <Link to="/" className="flex items-center space-x-2 text-2xl font-bold text-dark dark:text-light">
                        <CodeIcon className="w-8 h-8 text-primary"/>
-                       <span>SolverHub</span>
+                       <span>{settings.siteName}</span>
                     </Link>
                     <div className="flex items-center">
                         <nav className="hidden md:flex space-x-8">
@@ -55,7 +57,7 @@ const Header: React.FC = () => {
                                     `text-base font-medium py-2 px-4 rounded-md transition-colors duration-200 ${
                                         isActive ? 'bg-sky-100 dark:bg-slate-800 text-primary' : 'text-secondary dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800'
                                     }`
-                                }
+                                 }
                             >
                                 {link.name}
                             </NavLink>

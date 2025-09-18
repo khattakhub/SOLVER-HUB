@@ -13,11 +13,13 @@ const HomePage: React.FC = () => {
     const HeroSection = () => (
         <section className="bg-white dark:bg-dark py-20 sm:py-24 lg:py-32 transition-colors duration-300">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-dark dark:text-light tracking-tight">
-                    Solve Your Everyday Problems in <span className="text-primary">One Place</span>
+                <h1 
+                    className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-dark dark:text-light tracking-tight"
+                    dangerouslySetInnerHTML={{ __html: settings.heroTitle }}
+                >
                 </h1>
                 <p className="mt-6 max-w-2xl mx-auto text-lg text-secondary dark:text-slate-400">
-                    Access a curated collection of powerful AI tools, converters, and utilities designed to simplify your tasks and boost productivity.
+                    {settings.heroSubtitle}
                 </p>
                 <div className="mt-10 flex justify-center space-x-4">
                     <Link to="/tools" className="bg-primary text-white font-semibold px-8 py-3 rounded-md hover:bg-primary-dark transition-colors duration-300 shadow-lg">
@@ -49,9 +51,9 @@ const HomePage: React.FC = () => {
       <section className="bg-white dark:bg-dark py-16 sm:py-20 transition-colors duration-300">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-dark dark:text-light">About SolverHub</h2>
-            <p className="mt-4 text-lg text-secondary dark:text-slate-400">
-              SolverHub was created with a simple mission: to provide a single, reliable platform for the essential tools people need every day. From students and writers to developers and business professionals, our goal is to eliminate the hassle of searching for different single-purpose websites. We focus on building high-quality, easy-to-use tools powered by the latest technology to make your life easier and more productive.
+            <h2 className="text-3xl font-bold text-dark dark:text-light">{settings.aboutTitle}</h2>
+            <p className="mt-4 text-lg text-secondary dark:text-slate-400 whitespace-pre-wrap">
+              {settings.aboutContent}
             </p>
           </div>
         </div>
@@ -63,8 +65,8 @@ const HomePage: React.FC = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-xl mx-auto">
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-dark dark:text-light">Get in Touch</h2>
-              <p className="mt-2 text-md text-secondary dark:text-slate-400">Have questions, feedback, or a tool suggestion? We'd love to hear from you.</p>
+              <h2 className="text-3xl font-bold text-dark dark:text-light">{settings.contactTitle}</h2>
+              <p className="mt-2 text-md text-secondary dark:text-slate-400">{settings.contactSubtitle}</p>
             </div>
             <form className="mt-8 space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

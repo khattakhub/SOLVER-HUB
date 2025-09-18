@@ -70,40 +70,37 @@ const AdminPage: React.FC = () => {
 
     const handleSaveSettings = (e: React.FormEvent) => {
         e.preventDefault();
-        updateSettings({ socialLinks: siteSettings.socialLinks });
+        updateSettings(siteSettings);
         showNotification('Site settings updated successfully!');
     };
 
     const handleSaveContent = (e: React.FormEvent) => {
         e.preventDefault();
-        updateSettings({ 
-            privacyPolicy: siteSettings.privacyPolicy,
-            termsOfService: siteSettings.termsOfService
-        });
+        updateSettings(siteSettings);
         showNotification('Content updated successfully!');
     };
 
-    const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setSiteSettings(prev => ({
-            ...prev,
-            socialLinks: {
-                ...prev.socialLinks,
-                [name]: value
-            }
-        }));
-    };
-
-    const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setSiteSettings(prev => ({ ...prev, [name]: value }));
+        
+        if (Object.keys(siteSettings.socialLinks).includes(name)) {
+            setSiteSettings(prev => ({
+                ...prev,
+                socialLinks: {
+                    ...prev.socialLinks,
+                    [name]: value
+                }
+            }));
+        } else {
+             setSiteSettings(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const tabs: { id: AdminTab, name: string }[] = [
         { id: 'dashboard', name: 'Dashboard' },
         { id: 'tools', name: 'Manage Tools' },
         { id: 'settings', name: 'Site Settings' },
-        { id: 'content', name: 'Content' },
+        { id: 'content', name: 'Content Management' },
     ];
 
     return (
@@ -186,41 +183,102 @@ const AdminPage: React.FC = () => {
                         </div>
                     )}
                     {activeTab === 'settings' && (
-                        <div className="bg-white dark:bg-dark p-6 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 max-w-2xl mx-auto">
-                            <h2 className="text-2xl font-bold text-dark dark:text-light mb-6">Social Media Links</h2>
-                            <form onSubmit={handleSaveSettings} className="space-y-4">
-                                <div>
-                                    <label htmlFor="twitter" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Twitter URL</label>
-                                    <input type="text" name="twitter" id="twitter" value={siteSettings.socialLinks.twitter} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
-                                </div>
-                                <div>
-                                    <label htmlFor="github" className="block text-sm font-medium text-gray-700 dark:text-slate-300">GitHub URL</label>
-                                    <input type="text" name="github" id="github" value={siteSettings.socialLinks.github} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
-                                </div>
-                                <div>
-                                    <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700 dark:text-slate-300">LinkedIn URL</label>
-                                    <input type="text" name="linkedin" id="linkedin" value={siteSettings.socialLinks.linkedin} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
-                                </div>
-                                <div className="text-right pt-4">
-                                    <button type="submit" className="bg-primary text-white font-semibold px-5 py-2 rounded-md hover:bg-primary-dark transition-colors">Save Settings</button>
+                        <div className="bg-white dark:bg-dark p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 max-w-3xl mx-auto">
+                            <form onSubmit={handleSaveSettings} className="space-y-8">
+                                <fieldset>
+                                    <legend className="text-2xl font-bold text-dark dark:text-light mb-4">General Settings</legend>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label htmlFor="siteName" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Site Name</label>
+                                            <input type="text" name="siteName" id="siteName" value={siteSettings.siteName} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset>
+                                    <legend className="text-2xl font-bold text-dark dark:text-light mb-4">Appearance</legend>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div>
+                                            <label htmlFor="primaryColor" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Primary Color</label>
+                                            <div className="mt-1 flex items-center gap-2">
+                                                <input type="color" name="primaryColor" id="primaryColor" value={siteSettings.primaryColor} onChange={handleSettingsChange} className="h-10 w-10 p-1 border-gray-300 rounded-md" />
+                                                <input type="text" value={siteSettings.primaryColor} onChange={handleSettingsChange} name="primaryColor" className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label htmlFor="primaryColorDark" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Primary Darker Color (for hover)</label>
+                                            <div className="mt-1 flex items-center gap-2">
+                                                <input type="color" name="primaryColorDark" id="primaryColorDark" value={siteSettings.primaryColorDark} onChange={handleSettingsChange} className="h-10 w-10 p-1 border-gray-300 rounded-md" />
+                                                <input type="text" value={siteSettings.primaryColorDark} onChange={handleSettingsChange} name="primaryColorDark" className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset>
+                                    <legend className="text-2xl font-bold text-dark dark:text-light mb-4">Social Media Links</legend>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label htmlFor="twitter" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Twitter URL</label>
+                                            <input type="text" name="twitter" id="twitter" value={siteSettings.socialLinks.twitter} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="github" className="block text-sm font-medium text-gray-700 dark:text-slate-300">GitHub URL</label>
+                                            <input type="text" name="github" id="github" value={siteSettings.socialLinks.github} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700 dark:text-slate-300">LinkedIn URL</label>
+                                            <input type="text" name="linkedin" id="linkedin" value={siteSettings.socialLinks.linkedin} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <div className="text-right pt-4 border-t dark:border-slate-700">
+                                    <button type="submit" className="bg-primary text-white font-semibold px-6 py-2 rounded-md hover:bg-primary-dark transition-colors">Save Settings</button>
                                 </div>
                             </form>
                         </div>
                     )}
                     {activeTab === 'content' && (
-                        <div className="bg-white dark:bg-dark p-6 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700">
-                             <h2 className="text-2xl font-bold text-dark dark:text-light mb-6">Page Content</h2>
-                             <form onSubmit={handleSaveContent} className="space-y-6">
-                                <div>
-                                    <label htmlFor="privacyPolicy" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Privacy Policy</label>
-                                    <textarea name="privacyPolicy" id="privacyPolicy" rows={10} value={siteSettings.privacyPolicy} onChange={handleContentChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light font-mono text-sm" />
-                                </div>
-                                 <div>
-                                    <label htmlFor="termsOfService" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Terms of Service</label>
-                                    <textarea name="termsOfService" id="termsOfService" rows={10} value={siteSettings.termsOfService} onChange={handleContentChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light font-mono text-sm" />
-                                </div>
-                                <div className="text-right pt-2">
-                                    <button type="submit" className="bg-primary text-white font-semibold px-5 py-2 rounded-md hover:bg-primary-dark transition-colors">Save Content</button>
+                        <div className="bg-white dark:bg-dark p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700">
+                             <form onSubmit={handleSaveContent} className="space-y-8">
+                                <fieldset>
+                                    <legend className="text-2xl font-bold text-dark dark:text-light mb-4">Homepage Content</legend>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label htmlFor="heroTitle" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Hero Title</label>
+                                            <input type="text" name="heroTitle" id="heroTitle" value={siteSettings.heroTitle} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
+                                            <p className="text-xs text-gray-500 mt-1">HTML is allowed for custom styling, e.g., using &lt;span&gt; tags.</p>
+                                        </div>
+                                         <div>
+                                            <label htmlFor="heroSubtitle" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Hero Subtitle</label>
+                                            <textarea name="heroSubtitle" id="heroSubtitle" rows={2} value={siteSettings.heroSubtitle} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
+                                        </div>
+                                         <div>
+                                            <label htmlFor="aboutTitle" className="block text-sm font-medium text-gray-700 dark:text-slate-300">About Section Title</label>
+                                            <input type="text" name="aboutTitle" id="aboutTitle" value={siteSettings.aboutTitle} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="aboutContent" className="block text-sm font-medium text-gray-700 dark:text-slate-300">About Section Content</label>
+                                            <textarea name="aboutContent" id="aboutContent" rows={5} value={siteSettings.aboutContent} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset>
+                                    <legend className="text-2xl font-bold text-dark dark:text-light mb-4">Legal Pages</legend>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label htmlFor="privacyPolicy" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Privacy Policy</label>
+                                            <textarea name="privacyPolicy" id="privacyPolicy" rows={10} value={siteSettings.privacyPolicy} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light font-mono text-sm" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="termsOfService" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Terms of Service</label>
+                                            <textarea name="termsOfService" id="termsOfService" rows={10} value={siteSettings.termsOfService} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light font-mono text-sm" />
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <div className="text-right pt-4 border-t dark:border-slate-700">
+                                    <button type="submit" className="bg-primary text-white font-semibold px-6 py-2 rounded-md hover:bg-primary-dark transition-colors">Save Content</button>
                                 </div>
                              </form>
                         </div>

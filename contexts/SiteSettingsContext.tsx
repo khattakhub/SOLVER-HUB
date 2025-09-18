@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 interface SocialLinks {
     twitter: string;
@@ -7,6 +7,15 @@ interface SocialLinks {
 }
 
 interface SiteSettings {
+    siteName: string;
+    primaryColor: string;
+    primaryColorDark: string;
+    heroTitle: string;
+    heroSubtitle: string;
+    aboutTitle: string;
+    aboutContent: string;
+    contactTitle: string;
+    contactSubtitle: string;
     socialLinks: SocialLinks;
     privacyPolicy: string;
     termsOfService: string;
@@ -20,6 +29,15 @@ interface SiteSettingsContextType {
 const SETTINGS_STORAGE_KEY = 'siteSettings';
 
 const defaultSettings: SiteSettings = {
+    siteName: 'SolverHub',
+    primaryColor: '#0284c7',
+    primaryColorDark: '#0369a1',
+    heroTitle: 'Solve Your Everyday Problems in <span class="text-primary">One Place</span>',
+    heroSubtitle: 'Access a curated collection of powerful AI tools, converters, and utilities designed to simplify your tasks and boost productivity.',
+    aboutTitle: 'About SolverHub',
+    aboutContent: "SolverHub was created with a simple mission: to provide a single, reliable platform for the essential tools people need every day. From students and writers to developers and business professionals, our goal is to eliminate the hassle of searching for different single-purpose websites. We focus on building high-quality, easy-to-use tools powered by the latest technology to make your life easier and more productive.",
+    contactTitle: 'Get in Touch',
+    contactSubtitle: "Have questions, feedback, or a tool suggestion? We'd love to hear from you.",
     socialLinks: {
         twitter: 'https://twitter.com',
         github: 'https://github.com',
@@ -62,14 +80,22 @@ SolverHub may revise these terms of service for its website at any time without 
 
 const loadSettings = (): SiteSettings => {
     try {
-        const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
-        if (savedSettings) {
-            return JSON.parse(savedSettings);
+        const savedSettingsRaw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+        if (savedSettingsRaw) {
+            const savedSettings = JSON.parse(savedSettingsRaw);
+            // Merge saved settings with defaults to ensure all keys are present
+            return {
+                ...defaultSettings,
+                ...savedSettings,
+                socialLinks: {
+                    ...defaultSettings.socialLinks,
+                    ...(savedSettings.socialLinks || {})
+                }
+            };
         }
     } catch (error) {
         console.error("Failed to parse site settings from localStorage", error);
     }
-    // If nothing is saved or parsing fails, save the default settings
     localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(defaultSettings));
     return defaultSettings;
 };
@@ -78,6 +104,12 @@ const SiteSettingsContext = createContext<SiteSettingsContextType | undefined>(u
 
 export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [settings, setSettings] = useState<SiteSettings>(loadSettings);
+    
+    useEffect(() => {
+        document.documentElement.style.setProperty('--color-primary', settings.primaryColor);
+        document.documentElement.style.setProperty('--color-primary-dark', settings.primaryColorDark);
+    }, [settings.primaryColor, settings.primaryColorDark]);
+
 
     const updateSettings = (newSettings: Partial<SiteSettings>) => {
         setSettings(prevSettings => {
@@ -89,7 +121,11 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
                     ...newSettings.socialLinks
                 }
             };
-            localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated));
+            try {
+               localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated));
+            } catch (error) {
+                console.error("Could not save site settings to localStorage", error);
+            }
             return updated;
         });
     };

@@ -17,3 +17,18 @@ export interface Tool {
     component: React.LazyExoticComponent<React.ComponentType<any>>;
     isFeatured?: boolean;
 }
+
+export interface Suggestion {
+  id: number;
+  idea: string;
+  description: string;
+  date: string;
+}
+
+export interface ContactMessage {
+  id: number;
+  name: string;
+  email: string;
+  message: string;
+  date: string;
+}

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Suggestion } from '../types';
 
 const futureTools = [
     { name: 'Video Summarizer', description: 'Get key points from long videos instantly.' },
@@ -9,6 +10,45 @@ const futureTools = [
 ];
 
 const FutureToolsPage: React.FC = () => {
+    const [idea, setIdea] = useState('');
+    const [description, setDescription] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitMessage, setSubmitMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!idea.trim() || !description.trim()) {
+            setSubmitMessage({ type: 'error', text: 'Please fill out both fields.' });
+            return;
+        }
+        setIsSubmitting(true);
+        setSubmitMessage(null);
+
+        setTimeout(() => {
+            try {
+                const existingSuggestionsRaw = localStorage.getItem('userSuggestions');
+                const existingSuggestions: Suggestion[] = existingSuggestionsRaw ? JSON.parse(existingSuggestionsRaw) : [];
+                const newSuggestion: Suggestion = {
+                    id: Date.now(),
+                    idea,
+                    description,
+                    date: new Date().toISOString(),
+                };
+                const updatedSuggestions = [...existingSuggestions, newSuggestion];
+                localStorage.setItem('userSuggestions', JSON.stringify(updatedSuggestions));
+
+                setSubmitMessage({ type: 'success', text: 'Thank you! Your suggestion has been submitted.' });
+                setIdea('');
+                setDescription('');
+            } catch (error) {
+                console.error("Failed to save suggestion:", error);
+                setSubmitMessage({ type: 'error', text: 'An error occurred. Please try again.' });
+            } finally {
+                setIsSubmitting(false);
+            }
+        }, 500); // Simulate network delay
+    };
+
     return (
         <div className="bg-white dark:bg-dark py-12 sm:py-16 transition-colors duration-300 fade-in">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,12 +76,37 @@ const FutureToolsPage: React.FC = () => {
                         <h2 className="text-3xl font-bold text-dark dark:text-light">Have an Idea?</h2>
                         <p className="mt-2 text-md text-secondary dark:text-slate-400">Suggest a new tool you'd like to see on SolverHub.</p>
                     </div>
-                    <form className="mt-8 space-y-6">
-                        <input type="text" placeholder="Tool Name / Idea" className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light" />
-                        <textarea placeholder="Describe the tool..." rows={4} className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light"></textarea>
+                    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                        <input 
+                            type="text" 
+                            placeholder="Tool Name / Idea" 
+                            value={idea}
+                            onChange={(e) => setIdea(e.target.value)}
+                            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light" />
+                        <textarea 
+                            placeholder="Describe the tool..." 
+                            rows={4}
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light"></textarea>
+                        
+                        {submitMessage && (
+                           <div className={`text-center p-3 rounded-md text-sm ${
+                               submitMessage.type === 'success' 
+                               ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' 
+                               : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'
+                           }`}>
+                               {submitMessage.text}
+                           </div>
+                        )}
+
                         <div className="text-center">
-                            <button type="submit" className="bg-primary text-white font-semibold px-8 py-3 rounded-md hover:bg-primary-dark transition-colors duration-300 shadow-lg">
-                                Submit Suggestion
+                            <button 
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="bg-primary text-white font-semibold px-8 py-3 rounded-md hover:bg-primary-dark transition-colors duration-300 shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            >
+                                {isSubmitting ? 'Submitting...' : 'Submit Suggestion'}
                             </button>
                         </div>
                     </form>

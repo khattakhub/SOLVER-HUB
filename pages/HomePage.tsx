@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants';
 import ToolCard from '../components/ToolCard';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
+import { ContactMessage } from '../types';
 
 const HomePage: React.FC = () => {
     const featuredTools = TOOLS.filter(tool => tool.isFeatured);
@@ -60,37 +61,95 @@ const HomePage: React.FC = () => {
       </section>
     );
 
-    const ContactSection = () => (
-      <section className="bg-light dark:bg-slate-900 py-16 sm:py-20 transition-colors duration-300">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-xl mx-auto">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold text-dark dark:text-light">{settings.contactTitle}</h2>
-              <p className="mt-2 text-md text-secondary dark:text-slate-400">{settings.contactSubtitle}</p>
-            </div>
-            <form className="mt-8 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <input type="text" placeholder="Your Name" className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light" />
-                <input type="email" placeholder="Your Email" className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light" />
+    const ContactSection = () => {
+        const [name, setName] = useState('');
+        const [email, setEmail] = useState('');
+        const [message, setMessageText] = useState('');
+        const [isSubmitting, setIsSubmitting] = useState(false);
+        const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+        const handleSubmit = (e: React.FormEvent) => {
+            e.preventDefault();
+            if (!name.trim() || !email.trim() || !message.trim()) {
+                setSubmitStatus({ type: 'error', text: 'Please fill out all fields.' });
+                return;
+            }
+            setIsSubmitting(true);
+            setSubmitStatus(null);
+    
+            // Simulate async operation
+            setTimeout(() => {
+                try {
+                    const existingMessagesRaw = localStorage.getItem('contactMessages');
+                    const existingMessages: ContactMessage[] = existingMessagesRaw ? JSON.parse(existingMessagesRaw) : [];
+
+                    const newMessage: ContactMessage = {
+                        id: Date.now(),
+                        name,
+                        email,
+                        message,
+                        date: new Date().toISOString(),
+                    };
+
+                    const updatedMessages = [...existingMessages, newMessage];
+                    localStorage.setItem('contactMessages', JSON.stringify(updatedMessages));
+    
+                    setSubmitStatus({ type: 'success', text: 'Your message has been sent successfully!' });
+                    setName('');
+                    setEmail('');
+                    setMessageText('');
+                } catch (error) {
+                    console.error("Failed to save message:", error);
+                    setSubmitStatus({ type: 'error', text: 'An error occurred. Please try again.' });
+                } finally {
+                    setIsSubmitting(false);
+                }
+            }, 500);
+        };
+
+        return (
+          <section className="bg-light dark:bg-slate-900 py-16 sm:py-20 transition-colors duration-300">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="max-w-xl mx-auto">
+                <div className="text-center">
+                  <h2 className="text-3xl font-bold text-dark dark:text-light">{settings.contactTitle}</h2>
+                  <p className="mt-2 text-md text-secondary dark:text-slate-400">{settings.contactSubtitle}</p>
+                </div>
+                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <input type="text" placeholder="Your Name" value={name} onChange={e => setName(e.target.value)} className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light" />
+                    <input type="email" placeholder="Your Email" value={email} onChange={e => setEmail(e.target.value)} className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light" />
+                  </div>
+                  <textarea placeholder="Your Message" rows={5} value={message} onChange={e => setMessageText(e.target.value)} className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light"></textarea>
+                  
+                  {submitStatus && (
+                       <div className={`text-center p-3 rounded-md text-sm ${
+                           submitStatus.type === 'success' 
+                           ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' 
+                           : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'
+                       }`}>
+                           {submitStatus.text}
+                       </div>
+                  )}
+
+                  <div className="text-center">
+                    <button type="submit" disabled={isSubmitting} className="bg-primary text-white font-semibold px-8 py-3 rounded-md hover:bg-primary-dark transition-colors duration-300 shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed">
+                      {isSubmitting ? 'Sending...' : 'Send Message'}
+                    </button>
+                  </div>
+                </form>
+                 <div className="flex justify-center space-x-6 mt-8">
+                    {Object.entries(socialLinks).filter(([, link]) => link && link.trim() !== '' && link.trim() !== '#').map(([name, link]) => (
+                        <a key={name} href={link} target="_blank" rel="noopener noreferrer" className="text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors">
+                            <span className="capitalize text-lg font-medium">{name}</span>
+                        </a>
+                    ))}
+                </div>
               </div>
-              <textarea placeholder="Your Message" rows={5} className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light"></textarea>
-              <div className="text-center">
-                <button type="submit" className="bg-primary text-white font-semibold px-8 py-3 rounded-md hover:bg-primary-dark transition-colors duration-300 shadow-lg">
-                  Send Message
-                </button>
-              </div>
-            </form>
-             <div className="flex justify-center space-x-6 mt-8">
-                {Object.entries(socialLinks).filter(([, link]) => link && link.trim() !== '' && link.trim() !== '#').map(([name, link]) => (
-                    <a key={name} href={link} target="_blank" rel="noopener noreferrer" className="text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors">
-                        <span className="capitalize text-lg font-medium">{name}</span>
-                    </a>
-                ))}
             </div>
-          </div>
-        </div>
-      </section>
-    );
+          </section>
+        )
+    };
 
     return (
         <div className="fade-in">

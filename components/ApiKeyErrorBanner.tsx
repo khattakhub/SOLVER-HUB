@@ -4,9 +4,9 @@ import { XIcon } from './icons';
 
 const ApiKeyErrorBanner: React.FC = () => {
     const { apiKeyError } = useApiStatus();
-    const [isVisible, setIsVisible] = useState(true);
+    const [inVisible, setInVisible] = useState(true);
 
-    if (!apiKeyError || !isVisible) {
+    if (!apiKeyError || !inVisible) {
         return null;
     }
 
@@ -19,7 +19,8 @@ const ApiKeyErrorBanner: React.FC = () => {
                         <div className="text-sm whitespace-pre-wrap">{apiKeyError}</div>
                     </div>
                     <button
-                        onClick={() => setIsVisible(false)}
+                        // FIX: Corrected typo from setIsVisible to setInVisible.
+                        onClick={() => setInVisible(false)}
                         className="p-1.5 ml-4"
                         aria-label="Dismiss"
                     >

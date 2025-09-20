@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-// FIX: Per services/geminiService.ts, API key errors are handled within each tool, not via a global banner. This context is disabled.
-// import { getApiKeyError } from '../services/geminiService';
+import React, { createContext, useContext, ReactNode } from 'react';
+
+// This context is part of a legacy global error handling system that has been disabled.
+// API key errors are now handled within each individual tool.
+// This file is kept to prevent import errors but should not be used.
 
 interface ApiStatusContextType {
     apiKeyError: string | null;
@@ -9,19 +11,8 @@ interface ApiStatusContextType {
 const ApiStatusContext = createContext<ApiStatusContextType | undefined>(undefined);
 
 export const ApiStatusProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [apiKeyError, setApiKeyError] = useState<string | null>(null);
-
-    useEffect(() => {
-        // const error = getApiKeyError();
-        // if (error) {
-        //     setApiKeyError(error.message);
-        // }
-    }, []);
-
-    const value = { apiKeyError };
-
     return (
-        <ApiStatusContext.Provider value={value}>
+        <ApiStatusContext.Provider value={{ apiKeyError: null }}>
             {children}
         </ApiStatusContext.Provider>
     );
@@ -30,7 +21,8 @@ export const ApiStatusProvider: React.FC<{ children: ReactNode }> = ({ children 
 export const useApiStatus = (): ApiStatusContextType => {
     const context = useContext(ApiStatusContext);
     if (!context) {
-        throw new Error('useApiStatus must be used within an ApiStatusProvider');
+        // This should not happen if the provider is used, but it's a safe fallback.
+        return { apiKeyError: null };
     }
     return context;
 };

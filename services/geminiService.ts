@@ -3,6 +3,16 @@ import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 // A singleton pattern for the AI instance to avoid re-initialization
 let aiInstance: GoogleGenAI | null = null;
 
+const API_KEY_ERROR_MESSAGE = `Configuration Error: AI features are disabled. The application requires a Google Gemini API Key to function.
+
+Please ensure the 'API_KEY' environment variable is set in your deployment environment.
+
+For example, if deploying on Vercel:
+1. Go to your Project Settings.
+2. Navigate to 'Environment Variables'.
+3. Add a variable named 'API_KEY' with your key as the value.
+4. Redeploy your application.`;
+
 // This function initializes the AI service and caches the instance.
 const initializeAi = (): void => {
     // Only run initialization once.
@@ -33,7 +43,7 @@ const getAi = (): GoogleGenAI => {
     if (!aiInstance) {
         // This error will now be displayed inside each tool's result area instead of a global banner.
         // FIX: Update error message to refer to API_KEY environment variable.
-        throw new Error("AI service is not configured. Please ensure your API_KEY is set correctly in an environment file.");
+        throw new Error(API_KEY_ERROR_MESSAGE);
     }
     return aiInstance;
 };
@@ -44,7 +54,7 @@ const model = 'gemini-2.5-flash';
 const handleApiError = (error: unknown, defaultMessage: string): never => {
     console.error(defaultMessage, error);
     // If it's the specific API key configuration error, re-throw it to be displayed in the UI.
-    if (error instanceof Error && error.message.includes("AI service is not configured")) {
+    if (error instanceof Error && error.message.includes("Configuration Error")) {
        throw error;
     }
     // For other errors, throw a more generic message.

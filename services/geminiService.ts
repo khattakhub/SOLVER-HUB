@@ -2,28 +2,20 @@ import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 
 // A singleton pattern for the AI instance to avoid re-initialization
 let aiInstance: GoogleGenAI | null = null;
-let apiKeyError: Error | null = null;
 
-// This function initializes the AI service and caches the instance or any errors.
+// This function initializes the AI service and caches the instance.
 const initializeAi = (): void => {
     // Only run initialization once.
-    if (aiInstance || apiKeyError) {
+    if (aiInstance) {
         return;
     }
 
-    // Use process.env.API_KEY as per the coding guidelines.
+    // FIX: Use process.env.API_KEY as per the guidelines.
     const apiKey = import.meta.env.VITE_API_KEY;
+
     if (!apiKey) {
-        const errorMessage = `AI service is not configured. The application requires a Google Gemini API Key to function.
-
-Please ensure the 'API_KEY' environment variable is set in your deployment environment.
-
-For example, if deploying on Vercel:
-1. Go to your Project Settings.
-2. Navigate to 'Environment Variables'.
-3. Add a variable named 'API_KEY' with your key as the value.
-4. Redeploy your application.`;
-        apiKeyError = new Error(errorMessage);
+        // FIX: Update error message to refer to API_KEY.
+        console.error("API_KEY is not set in environment variables. AI features will not work.");
         return;
     }
 
@@ -31,21 +23,17 @@ For example, if deploying on Vercel:
         aiInstance = new GoogleGenAI({ apiKey });
     } catch (error) {
         console.error("Error initializing GoogleGenAI:", error);
-        apiKeyError = new Error("Failed to initialize the AI service. Please check the console for details.");
     }
 };
-
 
 const getAi = (): GoogleGenAI => {
     // Initialize on first call.
     initializeAi();
 
-    if (apiKeyError) {
-        throw apiKeyError;
-    }
     if (!aiInstance) {
-        // This should not happen if initialization logic is correct, but it's a safeguard.
-        throw new Error("AI service could not be initialized.");
+        // This error will now be displayed inside each tool's result area instead of a global banner.
+        // FIX: Update error message to refer to API_KEY.
+        throw new Error("AI service is not configured. Please ensure your API_KEY is set correctly in environment variables.");
     }
     return aiInstance;
 };

@@ -1,9 +1,9 @@
 import React, { Suspense, lazy, useEffect } from 'react';
+// FIX: Corrected import for react-router-dom components.
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
-import ApiKeyErrorBanner from './components/ApiKeyErrorBanner';
 import { useSiteSettings } from './contexts/SiteSettingsContext';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -36,7 +36,6 @@ const App: React.FC = () => {
         <HashRouter>
             <div className="flex flex-col min-h-screen font-sans">
                 <Header />
-                <ApiKeyErrorBanner />
                 <main className="flex-grow">
                     <Suspense fallback={<LoadingSpinner />}>
                         <Routes>

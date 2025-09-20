@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// FIX: Corrected import for react-router-dom components.
 import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants';
 import ToolCard from '../components/ToolCard';

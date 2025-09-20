@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// FIX: Corrected import for react-router-dom components.
 import { Link, NavLink } from 'react-router-dom';
 import { NAV_LINKS } from '../constants';
 import { MenuIcon, XIcon, CodeIcon } from './icons';

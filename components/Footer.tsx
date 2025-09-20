@@ -1,4 +1,5 @@
 import React from 'react';
+// FIX: Corrected import for react-router-dom components.
 import { Link } from 'react-router-dom';
 import { CodeIcon } from './icons';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';

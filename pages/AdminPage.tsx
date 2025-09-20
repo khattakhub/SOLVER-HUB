@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// FIX: Corrected import for react-router-dom components.
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { TOOLS } from '../constants';

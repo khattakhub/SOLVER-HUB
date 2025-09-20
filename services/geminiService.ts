@@ -10,7 +10,7 @@ const initializeAi = (): void => {
         return;
     }
 
-    // FIX: Per coding guidelines, API key must be from process.env.API_KEY. This resolves the TypeScript error.
+    // FIX: The API key must be obtained from process.env.API_KEY. This also resolves the TypeScript error with import.meta.env.
     const apiKey = process.env.API_KEY;
 
     if (!apiKey) {
@@ -32,8 +32,8 @@ const getAi = (): GoogleGenAI => {
 
     if (!aiInstance) {
         // This error will now be displayed inside each tool's result area instead of a global banner.
-        // FIX: Update error message to refer to the correct environment variable per coding guidelines.
-        throw new Error("AI service is not configured. Please ensure your API_KEY is set correctly in environment variables.");
+        // FIX: Update error message to refer to API_KEY environment variable.
+        throw new Error("AI service is not configured. Please ensure your API_KEY is set correctly in an environment file.");
     }
     return aiInstance;
 };

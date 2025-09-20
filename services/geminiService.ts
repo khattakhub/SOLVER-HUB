@@ -10,11 +10,11 @@ const initializeAi = (): void => {
         return;
     }
 
-    // FIX: Per coding guidelines, the API key must be obtained from process.env.API_KEY. This resolves the 'Property 'env' does not exist' error.
+    // FIX: Per coding guidelines, API key must be from process.env.API_KEY. This resolves the TypeScript error.
     const apiKey = process.env.API_KEY;
 
     if (!apiKey) {
-        // FIX: Update error message to refer to the correct environment variable.
+        // Update error message to refer to the correct environment variable.
         console.error("API_KEY is not set in environment variables. AI features will not work.");
         return;
     }
@@ -32,7 +32,7 @@ const getAi = (): GoogleGenAI => {
 
     if (!aiInstance) {
         // This error will now be displayed inside each tool's result area instead of a global banner.
-        // FIX: Update error message to refer to the correct environment variable.
+        // FIX: Update error message to refer to the correct environment variable per coding guidelines.
         throw new Error("AI service is not configured. Please ensure your API_KEY is set correctly in environment variables.");
     }
     return aiInstance;

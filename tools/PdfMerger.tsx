@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import ToolContainer from './common/ToolContainer';
 
 // pdf-lib is loaded from CDN in index.html, we declare it here for TypeScript
-declare const pdfLib: any;
+declare const PDFLib: any;
 
 const PdfMerger: React.FC = () => {
     const [files, setFiles] = useState<FileList | null>(null);
@@ -23,7 +23,7 @@ const PdfMerger: React.FC = () => {
         setError(null);
 
         try {
-            const { PDFDocument } = pdfLib;
+            const { PDFDocument } = PDFLib;
             const mergedPdf = await PDFDocument.create();
 
             for (let i = 0; i < files.length; i++) {

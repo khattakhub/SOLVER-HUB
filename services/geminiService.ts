@@ -1,14 +1,10 @@
-// FIX: Updated comments to refer to API_KEY instead of VITE_API_KEY.
-// For local development, create a .env file in the root of the project and add the following line:
-// API_KEY=your_google_gemini_api_key
-
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 
 // A singleton pattern for the AI instance to avoid re-initialization
 let aiInstance: GoogleGenAI | null = null;
 let isInitialized = false;
 
-// FIX: Updated error message to reference API_KEY per guidelines.
+// FIX: Updated error message to reference API_KEY instead of VITE_API_KEY.
 const API_KEY_ERROR_MESSAGE = `AI features are disabled. The application requires a Google Gemini API Key to function. Please ensure the 'API_KEY' environment variable is set in your deployment environment.`;
 
 // This function initializes the AI service and caches the instance. It does not throw.
@@ -19,12 +15,10 @@ const initializeAi = (): void => {
     }
     isInitialized = true;
 
-    // FIX: Per coding guidelines, the API key must be obtained from process.env.API_KEY.
-    // This also resolves the TypeScript error: "Property 'env' does not exist on type 'ImportMeta'".
+    // FIX: Switched from import.meta.env.VITE_API_KEY to process.env.API_KEY to align with guidelines and resolve TypeScript error.
     const apiKey = process.env.API_KEY;
 
     if (!apiKey) {
-        // FIX: Updated console error to refer to API_KEY.
         console.error("API_KEY is not set in environment variables. AI features will be disabled.");
         return;
     }

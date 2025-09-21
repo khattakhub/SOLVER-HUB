@@ -1,10 +1,13 @@
+// For local development, create a .env file in the root of the project and add the following line:
+// VITE_API_KEY=your_google_gemini_api_key
+
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 
 // A singleton pattern for the AI instance to avoid re-initialization
 let aiInstance: GoogleGenAI | null = null;
 let isInitialized = false;
 
-const API_KEY_ERROR_MESSAGE = `AI features are disabled. The application requires a Google Gemini API Key to function. Please ensure the 'API_KEY' environment variable is set in your deployment environment.`;
+const API_KEY_ERROR_MESSAGE = `AI features are disabled. The application requires a Google Gemini API Key to function. Please ensure the 'VITE_API_KEY' (or 'API_KEY') environment variable is set in your deployment environment.`;
 
 // This function initializes the AI service and caches the instance. It does not throw.
 const initializeAi = (): void => {
@@ -14,10 +17,12 @@ const initializeAi = (): void => {
     }
     isInitialized = true;
 
-    const apiKey = process.env.API_KEY;
+    // Vite exposes env variables prefixed with VITE_ to the client.
+    // We fall back to API_KEY for other environments.
+    const apiKey = process.env.VITE_API_KEY || process.env.API_KEY;
 
     if (!apiKey) {
-        console.error("API_KEY is not set in environment variables. AI features will be disabled.");
+        console.error("VITE_API_KEY or API_KEY is not set in environment variables. AI features will be disabled.");
         return;
     }
 

@@ -2,22 +2,22 @@ import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 
 // A singleton pattern for the AI instance to avoid re-initialization
 let aiInstance: GoogleGenAI | null = null;
+let isInitialized = false;
 
-const API_KEY_ERROR_MESSAGE = `Configuration Error: AI features are disabled. The application requires a Google Gemini API Key to function.`;
+const API_KEY_ERROR_MESSAGE = `AI features are disabled. The application requires a Google Gemini API Key to function. Please ensure the 'API_KEY' environment variable is set in your deployment environment.`;
 
-// This function initializes the AI service and caches the instance.
+// This function initializes the AI service and caches the instance. It does not throw.
 const initializeAi = (): void => {
     // Only run initialization once.
-    if (aiInstance) {
+    if (isInitialized) {
         return;
     }
+    isInitialized = true;
 
-    // FIX: The API key must be obtained from process.env.API_KEY. This also resolves the TypeScript error with import.meta.env.
     const apiKey = process.env.API_KEY;
 
     if (!apiKey) {
-        // Update error message to refer to the correct environment variable.
-        console.error("API_KEY is not set in environment variables. AI features will not work.");
+        console.error("API_KEY is not set in environment variables. AI features will be disabled.");
         return;
     }
 
@@ -25,17 +25,14 @@ const initializeAi = (): void => {
         aiInstance = new GoogleGenAI({ apiKey });
     } catch (error) {
         console.error("Error initializing GoogleGenAI:", error);
+        aiInstance = null; // Ensure instance is null on error
     }
 };
 
-const getAi = (): GoogleGenAI => {
-    // Initialize on first call.
-    initializeAi();
-
-    if (!aiInstance) {
-        // This error will now be displayed inside each tool's result area instead of a global banner.
-        // FIX: Update error message to refer to API_KEY environment variable.
-        throw new Error(API_KEY_ERROR_MESSAGE);
+// Returns the AI instance or null if not available. Does not throw.
+const getAi = (): GoogleGenAI | null => {
+    if (!isInitialized) {
+        initializeAi();
     }
     return aiInstance;
 };
@@ -45,18 +42,18 @@ const model = 'gemini-2.5-flash';
 // Helper function to handle API errors consistently.
 const handleApiError = (error: unknown, defaultMessage: string): never => {
     console.error(defaultMessage, error);
-    // If it's the specific API key configuration error, re-throw it to be displayed in the UI.
-    if (error instanceof Error && error.message.includes("Configuration Error")) {
-       throw error;
-    }
-    // For other errors, throw a more generic message.
+    // The specific API key error is handled before this function is called.
+    // For other errors, we throw a more generic message.
     throw new Error(`${defaultMessage}. Please try again.`);
 };
 
 
 export const summarizeText = async (text: string): Promise<string> => {
+    const ai = getAi();
+    if (!ai) {
+        throw new Error(API_KEY_ERROR_MESSAGE);
+    }
     try {
-        const ai = getAi();
         const prompt = `Summarize the following text into a few concise bullet points:\n\n${text}`;
         const response: GenerateContentResponse = await ai.models.generateContent({
             model,
@@ -69,8 +66,11 @@ export const summarizeText = async (text: string): Promise<string> => {
 };
 
 export const checkGrammar = async (text: string): Promise<string> => {
+    const ai = getAi();
+    if (!ai) {
+        throw new Error(API_KEY_ERROR_MESSAGE);
+    }
     try {
-        const ai = getAi();
         const prompt = `Correct any grammar and spelling mistakes in the following text. Return only the corrected text without any introductory phrases:\n\n"${text}"`;
         const response: GenerateContentResponse = await ai.models.generateContent({
             model,
@@ -83,8 +83,11 @@ export const checkGrammar = async (text: string): Promise<string> => {
 };
 
 export const getTextFromImage = async (base64Image: string, mimeType: string): Promise<string> => {
+    const ai = getAi();
+    if (!ai) {
+        throw new Error(API_KEY_ERROR_MESSAGE);
+    }
     try {
-        const ai = getAi();
         const imagePart = {
             inlineData: {
                 data: base64Image,
@@ -104,8 +107,11 @@ export const getTextFromImage = async (base64Image: string, mimeType: string): P
 };
 
 export const getCurrencyConversion = async (amount: number, from: string, to: string): Promise<string> => {
+    const ai = getAi();
+    if (!ai) {
+        throw new Error(API_KEY_ERROR_MESSAGE);
+    }
     try {
-        const ai = getAi();
         const prompt = `Convert ${amount} ${from} to ${to}. Provide only the final converted numeric value, without currency symbols or any extra text.`;
         const response: GenerateContentResponse = await ai.models.generateContent({
             model,
@@ -122,8 +128,11 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
 };
 
 export const generateImage = async (prompt: string): Promise<string> => {
+    const ai = getAi();
+    if (!ai) {
+        throw new Error(API_KEY_ERROR_MESSAGE);
+    }
     try {
-        const ai = getAi();
         const response = await ai.models.generateImages({
             model: 'imagen-4.0-generate-001',
             prompt: prompt,
@@ -140,7 +149,10 @@ export const generateImage = async (prompt: string): Promise<string> => {
 };
 
 export const createChat = (): Chat => {
-    const ai = getAi(); // This check now happens when the component initializes the chat
+    const ai = getAi();
+    if (!ai) {
+        throw new Error(API_KEY_ERROR_MESSAGE);
+    }
     return ai.chats.create({
       model,
       config: {

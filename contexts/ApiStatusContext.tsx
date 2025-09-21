@@ -11,6 +11,7 @@ interface ApiStatusContextType {
 const ApiStatusContext = createContext<ApiStatusContextType | undefined>(undefined);
 
 export const ApiStatusProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    // The value is hardcoded to null as this global error system is no longer in use.
     return (
         <ApiStatusContext.Provider value={{ apiKeyError: null }}>
             {children}

@@ -1,7 +1,6 @@
-// FIX: Reverted Firebase initialization to v8 compatibility syntax. The v9 modular syntax was causing an import error,
-// which indicates that the installed Firebase SDK version is v8.
-import firebase from "firebase/app";
-import "firebase/analytics";
+// FIX: Switched to Firebase v9 compat libraries to resolve module resolution issues.
+import firebase from "firebase/compat/app";
+import "firebase/compat/analytics";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional

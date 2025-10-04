@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Suggestion } from '../types';
+import { db } from '../services/firebase';
 
 const futureTools = [
     { name: 'Video Summarizer', description: 'Get key points from long videos instantly.' },
@@ -15,38 +16,36 @@ const FutureToolsPage: React.FC = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitMessage, setSubmitMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!idea.trim() || !description.trim()) {
             setSubmitMessage({ type: 'error', text: 'Please fill out both fields.' });
             return;
         }
+        if (!db) {
+            setSubmitMessage({ type: 'error', text: 'Database service is not available.' });
+            return;
+        }
         setIsSubmitting(true);
         setSubmitMessage(null);
 
-        setTimeout(() => {
-            try {
-                const existingSuggestionsRaw = localStorage.getItem('userSuggestions');
-                const existingSuggestions: Suggestion[] = existingSuggestionsRaw ? JSON.parse(existingSuggestionsRaw) : [];
-                const newSuggestion: Suggestion = {
-                    id: Date.now(),
-                    idea,
-                    description,
-                    date: new Date().toISOString(),
-                };
-                const updatedSuggestions = [...existingSuggestions, newSuggestion];
-                localStorage.setItem('userSuggestions', JSON.stringify(updatedSuggestions));
+        try {
+            const newSuggestion = {
+                idea,
+                description,
+                date: new Date().toISOString(),
+            };
+            await db.collection('suggestions').add(newSuggestion);
 
-                setSubmitMessage({ type: 'success', text: 'Thank you! Your suggestion has been submitted.' });
-                setIdea('');
-                setDescription('');
-            } catch (error) {
-                console.error("Failed to save suggestion:", error);
-                setSubmitMessage({ type: 'error', text: 'An error occurred. Please try again.' });
-            } finally {
-                setIsSubmitting(false);
-            }
-        }, 500); // Simulate network delay
+            setSubmitMessage({ type: 'success', text: 'Thank you! Your suggestion has been submitted.' });
+            setIdea('');
+            setDescription('');
+        } catch (error) {
+            console.error("Failed to save suggestion:", error);
+            setSubmitMessage({ type: 'error', text: 'An error occurred. Please try again.' });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (

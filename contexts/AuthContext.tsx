@@ -1,37 +1,68 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import { auth } from '../services/firebase';
+
+interface User {
+    uid: string;
+    email: string | null;
+}
 
 interface AuthContextType {
+    user: User | null;
     isAdmin: boolean;
-    login: (password: string) => boolean;
-    logout: () => void;
+    loading: boolean;
+    login: (email: string, password: string) => Promise<boolean>;
+    logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ADMIN_PASSWORD = "admin"; // In a real app, this would be handled by a secure backend.
-const LOCAL_STORAGE_KEY = 'isAdmin';
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [isAdmin, setIsAdmin] = useState<boolean>(() => {
-        return localStorage.getItem(LOCAL_STORAGE_KEY) === 'true';
-    });
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    const login = (password: string): boolean => {
-        if (password === ADMIN_PASSWORD) {
-            localStorage.setItem(LOCAL_STORAGE_KEY, 'true');
-            setIsAdmin(true);
+    useEffect(() => {
+        const unsubscribe = auth?.onAuthStateChanged(firebaseUser => {
+            if (firebaseUser) {
+                setUser({ uid: firebaseUser.uid, email: firebaseUser.email });
+            } else {
+                setUser(null);
+            }
+            setLoading(false);
+        });
+
+        return () => {
+            if (unsubscribe) {
+                unsubscribe();
+            }
+        };
+    }, []);
+
+    const login = async (email: string, password: string): Promise<boolean> => {
+        if (!auth) return false;
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
             return true;
+        } catch (error) {
+            console.error("Firebase login error:", error);
+            return false;
         }
-        return false;
     };
 
-    const logout = () => {
-        localStorage.removeItem(LOCAL_STORAGE_KEY);
-        setIsAdmin(false);
+    const logout = async (): Promise<void> => {
+        if (!auth) return;
+        try {
+            await auth.signOut();
+        } catch (error) {
+            console.error("Firebase logout error:", error);
+        }
     };
+    
+    // In a real app, you might have more complex logic for what defines an "admin".
+    // For now, any logged-in user is considered an admin.
+    const isAdmin = !!user;
 
     return (
-        <AuthContext.Provider value={{ isAdmin, login, logout }}>
+        <AuthContext.Provider value={{ user, isAdmin, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

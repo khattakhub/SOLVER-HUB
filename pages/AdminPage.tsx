@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 // FIX: Corrected import for react-router-dom components.
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { TOOLS } from '../constants';
-import { Tool, Suggestion, ContactMessage } from '../types';
+import { db } from '../services/firebase';
+import { Tool, Suggestion, ContactMessage, ToolCategory } from '../types';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import EditToolModal from '../components/EditToolModal';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
+import { TOOLS as staticTools } from '../constants'; // For icons/components
 
 const StatCard: React.FC<{ title: string; value: string | number; icon: React.ReactNode }> = ({ title, value, icon }) => (
     <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-slate-700 flex items-center space-x-4">
@@ -23,7 +24,7 @@ type AdminTab = 'dashboard' | 'tools' | 'settings' | 'content' | 'suggestions' |
 const AdminPage: React.FC = () => {
     const { logout } = useAuth();
     const navigate = useNavigate();
-    const [tools, setTools] = useState<Tool[]>(TOOLS);
+    const [tools, setTools] = useState<Tool[]>([]);
     const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -42,25 +43,50 @@ const AdminPage: React.FC = () => {
     const [isDeleteMessageModalOpen, setIsDeleteMessageModalOpen] = useState(false);
 
     useEffect(() => {
-        try {
-            const suggestionsRaw = localStorage.getItem('userSuggestions');
-            const loadedSuggestions: Suggestion[] = suggestionsRaw ? JSON.parse(suggestionsRaw) : [];
-            loadedSuggestions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-            setSuggestions(loadedSuggestions);
-        } catch (error) {
-            console.error("Failed to load suggestions:", error);
-            showNotification("Error loading suggestions.");
-        }
+        if (!db) return;
 
-        try {
-            const messagesRaw = localStorage.getItem('contactMessages');
-            const loadedMessages: ContactMessage[] = messagesRaw ? JSON.parse(messagesRaw) : [];
-            loadedMessages.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-            setMessages(loadedMessages);
-        } catch (error) {
-            console.error("Failed to load messages:", error);
-            showNotification("Error loading messages.");
-        }
+        const unsubscribeSuggestions = db.collection('suggestions')
+            .orderBy('date', 'desc')
+            .onSnapshot(snapshot => {
+                const loadedSuggestions: Suggestion[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Suggestion));
+                setSuggestions(loadedSuggestions);
+            }, error => {
+                console.error("Error fetching suggestions:", error);
+                showNotification("Error loading suggestions.");
+            });
+
+        const unsubscribeMessages = db.collection('messages')
+            .orderBy('date', 'desc')
+            .onSnapshot(snapshot => {
+                const loadedMessages: ContactMessage[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContactMessage));
+                setMessages(loadedMessages);
+            }, error => {
+                console.error("Error fetching messages:", error);
+                showNotification("Error loading messages.");
+            });
+        
+        // Note: For a production app, tool definitions (components, icons) would likely
+        // be stored separately from the editable data in Firestore. Here, we merge them.
+        const staticToolMap = new Map(staticTools.map(t => [t.id, t]));
+        const unsubscribeTools = db.collection('tools')
+             .onSnapshot(snapshot => {
+                const dbTools: Partial<Tool>[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const mergedTools = dbTools.map(dbTool => {
+                    const staticData = staticToolMap.get(dbTool.id!);
+                    return { ...staticData, ...dbTool } as Tool;
+                });
+                setTools(mergedTools);
+             }, error => {
+                console.error("Error fetching tools:", error);
+                showNotification("Error loading tools.");
+             });
+
+
+        return () => {
+            unsubscribeSuggestions();
+            unsubscribeMessages();
+            unsubscribeTools();
+        };
     }, []);
 
     const showNotification = (message: string) => {
@@ -68,8 +94,8 @@ const AdminPage: React.FC = () => {
         setTimeout(() => setNotification(''), 3000);
     };
 
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
+        await logout();
         navigate('/');
     };
     
@@ -83,17 +109,34 @@ const AdminPage: React.FC = () => {
         setIsDeleteModalOpen(true);
     };
     
-    const handleSaveTool = (updatedTool: Tool) => {
-        setTools(prevTools => prevTools.map(t => t.id === updatedTool.id ? updatedTool : t));
+    const handleSaveTool = async (updatedTool: Tool) => {
+        if (!db) return;
+        const { id, ...toolData } = updatedTool;
+        // Don't save component/icon functions to firestore
+        delete (toolData as any).component;
+        delete (toolData as any).icon;
+        
+        try {
+            await db.collection('tools').doc(id).update(toolData);
+            showNotification(`Tool "${updatedTool.name}" updated successfully!`);
+        } catch (error) {
+            console.error("Error updating tool: ", error);
+            showNotification("Failed to update tool.");
+        }
+        
         setIsEditModalOpen(false);
         setSelectedTool(null);
-        showNotification(`Tool "${updatedTool.name}" updated successfully!`);
     };
 
-    const handleConfirmDelete = () => {
-        if (selectedTool) {
-            setTools(prevTools => prevTools.filter(t => t.id !== selectedTool.id));
-            showNotification(`Tool "${selectedTool.name}" deleted successfully.`);
+    const handleConfirmDelete = async () => {
+        if (selectedTool && db) {
+            try {
+                await db.collection('tools').doc(selectedTool.id).delete();
+                showNotification(`Tool "${selectedTool.name}" deleted successfully.`);
+            } catch (error) {
+                console.error("Error deleting tool: ", error);
+                showNotification("Failed to delete tool.");
+            }
         }
         setIsDeleteModalOpen(false);
         setSelectedTool(null);
@@ -132,12 +175,15 @@ const AdminPage: React.FC = () => {
         setIsDeleteSuggestionModalOpen(true);
     };
 
-    const handleConfirmDeleteSuggestion = () => {
-        if (suggestionToDelete) {
-            const updatedSuggestions = suggestions.filter(s => s.id !== suggestionToDelete.id);
-            localStorage.setItem('userSuggestions', JSON.stringify(updatedSuggestions));
-            setSuggestions(updatedSuggestions);
-            showNotification(`Suggestion deleted successfully.`);
+    const handleConfirmDeleteSuggestion = async () => {
+        if (suggestionToDelete && suggestionToDelete.id && db) {
+            try {
+                await db.collection('suggestions').doc(suggestionToDelete.id).delete();
+                showNotification(`Suggestion deleted successfully.`);
+            } catch (error) {
+                console.error("Error deleting suggestion:", error);
+                showNotification("Failed to delete suggestion.");
+            }
         }
         setIsDeleteSuggestionModalOpen(false);
         setSuggestionToDelete(null);
@@ -148,12 +194,15 @@ const AdminPage: React.FC = () => {
         setIsDeleteMessageModalOpen(true);
     };
 
-    const handleConfirmDeleteMessage = () => {
-        if (messageToDelete) {
-            const updatedMessages = messages.filter(m => m.id !== messageToDelete.id);
-            localStorage.setItem('contactMessages', JSON.stringify(updatedMessages));
-            setMessages(updatedMessages);
-            showNotification(`Message from ${messageToDelete.name} deleted successfully.`);
+    const handleConfirmDeleteMessage = async () => {
+        if (messageToDelete && messageToDelete.id && db) {
+            try {
+                await db.collection('messages').doc(messageToDelete.id).delete();
+                showNotification(`Message from ${messageToDelete.name} deleted successfully.`);
+            } catch (error) {
+                console.error("Error deleting message:", error);
+                showNotification("Failed to delete message.");
+            }
         }
         setIsDeleteMessageModalOpen(false);
         setMessageToDelete(null);
@@ -247,8 +296,8 @@ const AdminPage: React.FC = () => {
                                 </table>
                             </div>
                              <div className="mt-6 text-right">
-                                 <button className="bg-primary text-white font-semibold px-5 py-2 rounded-md hover:bg-primary-dark transition-colors">
-                                    Add New Tool
+                                 <button disabled className="bg-gray-400 text-white font-semibold px-5 py-2 rounded-md cursor-not-allowed">
+                                    Add New Tool (Soon)
                                 </button>
                             </div>
                         </div>

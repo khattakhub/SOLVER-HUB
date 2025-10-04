@@ -8,7 +8,15 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-    const { isAdmin } = useAuth();
+    const { isAdmin, loading } = useAuth();
+
+    if (loading) {
+        return (
+             <div className="flex justify-center items-center h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary dark:border-sky-400"></div>
+            </div>
+        );
+    }
 
     if (!isAdmin) {
         return <Navigate to="/login" replace />;

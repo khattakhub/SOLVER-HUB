@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { db } from '../services/firebase';
 
 interface SocialLinks {
     twitter: string;
@@ -26,7 +27,7 @@ interface SiteSettingsContextType {
     updateSettings: (newSettings: Partial<SiteSettings>) => void;
 }
 
-const SETTINGS_STORAGE_KEY = 'siteSettings';
+const SETTINGS_DOC_ID = 'globalSettings';
 
 const defaultSettings: SiteSettings = {
     siteName: 'SolverHub',
@@ -78,56 +79,61 @@ SolverHub may revise these terms of service for its website at any time without 
 };
 
 
-const loadSettings = (): SiteSettings => {
-    try {
-        const savedSettingsRaw = localStorage.getItem(SETTINGS_STORAGE_KEY);
-        if (savedSettingsRaw) {
-            const savedSettings = JSON.parse(savedSettingsRaw);
-            // Merge saved settings with defaults to ensure all keys are present
-            return {
-                ...defaultSettings,
-                ...savedSettings,
-                socialLinks: {
-                    ...defaultSettings.socialLinks,
-                    ...(savedSettings.socialLinks || {})
-                }
-            };
-        }
-    } catch (error) {
-        console.error("Failed to parse site settings from localStorage", error);
-    }
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(defaultSettings));
-    return defaultSettings;
-};
-
 const SiteSettingsContext = createContext<SiteSettingsContextType | undefined>(undefined);
 
 export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [settings, setSettings] = useState<SiteSettings>(loadSettings);
+    const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
     
     useEffect(() => {
         document.documentElement.style.setProperty('--color-primary', settings.primaryColor);
         document.documentElement.style.setProperty('--color-primary-dark', settings.primaryColorDark);
     }, [settings.primaryColor, settings.primaryColorDark]);
 
+    useEffect(() => {
+        if (!db) {
+            console.warn("Firestore is not available. Using default site settings.");
+            return;
+        }
 
-    const updateSettings = (newSettings: Partial<SiteSettings>) => {
-        setSettings(prevSettings => {
-            const updated = { 
-                ...prevSettings, 
-                ...newSettings,
-                socialLinks: {
-                    ...prevSettings.socialLinks,
-                    ...newSettings.socialLinks
-                }
-            };
-            try {
-               localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated));
-            } catch (error) {
-                console.error("Could not save site settings to localStorage", error);
+        const settingsRef = db.collection('settings').doc(SETTINGS_DOC_ID);
+
+        const unsubscribe = settingsRef.onSnapshot(doc => {
+            if (doc.exists) {
+                const data = doc.data() as Partial<SiteSettings>;
+                 setSettings(prev => ({
+                    ...prev,
+                    ...data,
+                    socialLinks: {
+                        ...prev.socialLinks,
+                        ...(data.socialLinks || {})
+                    }
+                }));
+            } else {
+                // If settings don't exist in Firestore, create them with defaults
+                settingsRef.set(defaultSettings).catch(err => {
+                    console.error("Error initializing settings in Firestore:", err);
+                });
             }
-            return updated;
+        }, err => {
+            console.error("Error fetching site settings:", err);
         });
+
+        return () => unsubscribe();
+
+    }, []);
+
+
+    const updateSettings = async (newSettings: Partial<SiteSettings>) => {
+        if (!db) {
+            console.error("Firestore not available. Cannot update settings.");
+            return;
+        }
+        
+        try {
+            await db.collection('settings').doc(SETTINGS_DOC_ID).update(newSettings);
+        } catch (error) {
+            console.error("Could not save site settings to Firestore", error);
+        }
     };
     
     return (

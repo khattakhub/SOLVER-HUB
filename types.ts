@@ -19,14 +19,14 @@ export interface Tool {
 }
 
 export interface Suggestion {
-  id: number;
+  id?: string;
   idea: string;
   description: string;
   date: string;
 }
 
 export interface ContactMessage {
-  id: number;
+  id?: string;
   name: string;
   email: string;
   message: string;

@@ -5,20 +5,24 @@ import { useAuth } from '../contexts/AuthContext';
 import { CodeIcon } from '../components/icons';
 
 const LoginPage: React.FC = () => {
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('admin@solverhub.com');
+    const [password, setPassword] = useState('admin123');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        const success = login(password);
+        setIsLoading(true);
+        const success = await login(email, password);
         if (success) {
             navigate('/admin');
         } else {
-            setError('Incorrect password. Please try again.');
+            setError('Incorrect email or password. Please try again.');
         }
+        setIsLoading(false);
     };
 
     return (
@@ -32,17 +36,32 @@ const LoginPage: React.FC = () => {
                         Admin Login
                     </h2>
                     <p className="mt-2 text-center text-sm text-secondary dark:text-slate-400">
-                        Enter the password to access the dashboard.
+                        Enter credentials to access the dashboard.
                     </p>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    <div className="rounded-md shadow-sm -space-y-px">
+                    <div className="rounded-md shadow-sm space-y-4">
+                        <div>
+                            <label htmlFor="email-address" className="sr-only">Email address</label>
+                            <input
+                                id="email-address"
+                                name="email"
+                                type="email"
+                                autoComplete="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="appearance-none rounded-md relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm dark:bg-slate-900 dark:border-slate-600 dark:text-light dark:placeholder-slate-400"
+                                placeholder="Email address"
+                            />
+                        </div>
                         <div>
                             <label htmlFor="password-input" className="sr-only">Password</label>
                             <input
                                 id="password-input"
                                 name="password"
                                 type="password"
+                                autoComplete="current-password"
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -57,9 +76,10 @@ const LoginPage: React.FC = () => {
                     <div>
                         <button
                             type="submit"
-                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark transition-colors"
+                            disabled={isLoading}
+                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark transition-colors disabled:bg-gray-400"
                         >
-                            Sign In
+                            {isLoading ? 'Signing In...' : 'Sign In'}
                         </button>
                     </div>
                 </form>

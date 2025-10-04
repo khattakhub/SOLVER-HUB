@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants';
 import ToolCard from '../components/ToolCard';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
-import { ContactMessage } from '../types';
+import { db } from '../services/firebase';
 
 const HomePage: React.FC = () => {
     const featuredTools = TOOLS.filter(tool => tool.isFeatured);
@@ -69,43 +69,38 @@ const HomePage: React.FC = () => {
         const [isSubmitting, setIsSubmitting] = useState(false);
         const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-        const handleSubmit = (e: React.FormEvent) => {
+        const handleSubmit = async (e: React.FormEvent) => {
             e.preventDefault();
             if (!name.trim() || !email.trim() || !message.trim()) {
                 setSubmitStatus({ type: 'error', text: 'Please fill out all fields.' });
                 return;
             }
+            if (!db) {
+                setSubmitStatus({ type: 'error', text: 'Database service is not available.' });
+                return;
+            }
             setIsSubmitting(true);
             setSubmitStatus(null);
     
-            // Simulate async operation
-            setTimeout(() => {
-                try {
-                    const existingMessagesRaw = localStorage.getItem('contactMessages');
-                    const existingMessages: ContactMessage[] = existingMessagesRaw ? JSON.parse(existingMessagesRaw) : [];
+            try {
+                const newMessage = {
+                    name,
+                    email,
+                    message,
+                    date: new Date().toISOString(),
+                };
+                await db.collection('messages').add(newMessage);
 
-                    const newMessage: ContactMessage = {
-                        id: Date.now(),
-                        name,
-                        email,
-                        message,
-                        date: new Date().toISOString(),
-                    };
-
-                    const updatedMessages = [...existingMessages, newMessage];
-                    localStorage.setItem('contactMessages', JSON.stringify(updatedMessages));
-    
-                    setSubmitStatus({ type: 'success', text: 'Your message has been sent successfully!' });
-                    setName('');
-                    setEmail('');
-                    setMessageText('');
-                } catch (error) {
-                    console.error("Failed to save message:", error);
-                    setSubmitStatus({ type: 'error', text: 'An error occurred. Please try again.' });
-                } finally {
-                    setIsSubmitting(false);
-                }
-            }, 500);
+                setSubmitStatus({ type: 'success', text: 'Your message has been sent successfully!' });
+                setName('');
+                setEmail('');
+                setMessageText('');
+            } catch (error) {
+                console.error("Failed to save message:", error);
+                setSubmitStatus({ type: 'error', text: 'An error occurred. Please try again.' });
+            } finally {
+                setIsSubmitting(false);
+            }
         };
 
         return (

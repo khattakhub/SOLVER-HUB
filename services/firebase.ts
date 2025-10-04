@@ -2,20 +2,30 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/analytics";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Your web app's Firebase configuration is now loaded from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyCnl9H7GXK_aIXiOyTxmMAEEfPcq_EH28s",
-  authDomain: "problem-solver-hub-by-shahzad.firebaseapp.com",
-  projectId: "problem-solver-hub-by-shahzad",
-  storageBucket: "problem-solver-hub-by-shahzad.firebasestorage.app",
-  messagingSenderId: "163021811851",
-  appId: "1:163021811851:web:ace0b2f234ca2384a6e48e",
-  measurementId: "G-1DG8JKP6BP"
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const analytics = firebase.analytics();
+// Initialize Firebase only if the essential configuration is provided to prevent errors.
+let app;
+let analytics;
+
+if (firebaseConfig.apiKey && firebaseConfig.projectId) {
+  try {
+    app = firebase.initializeApp(firebaseConfig);
+    analytics = firebase.analytics();
+  } catch (error) {
+    console.error("Firebase initialization failed:", error);
+  }
+} else {
+    console.warn("Firebase configuration is incomplete. Analytics and other Firebase features may be disabled.");
+}
 
 export { app, analytics };

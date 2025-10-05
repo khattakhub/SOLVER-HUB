@@ -17,6 +17,7 @@ const initializeAi = (): void => {
 
     const API_KEY = import.meta.env.VITE_API_KEY;
 
+
     if (!apiKey) {
         console.error("API_KEY is not set in environment variables. AI features will be disabled.");
         return;

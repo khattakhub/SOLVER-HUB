@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../services/firebase';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { Tool, Suggestion, ContactMessage, ToolCategory } from '../types';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import EditToolModal from '../components/EditToolModal';
@@ -45,41 +46,39 @@ const AdminPage: React.FC = () => {
     useEffect(() => {
         if (!db) return;
 
-        const unsubscribeSuggestions = db.collection('suggestions')
-            .orderBy('date', 'desc')
-            .onSnapshot(snapshot => {
-                const loadedSuggestions: Suggestion[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Suggestion));
-                setSuggestions(loadedSuggestions);
-            }, error => {
-                console.error("Error fetching suggestions:", error);
-                showNotification("Error loading suggestions.");
-            });
+        const suggestionsQuery = query(collection(db, 'suggestions'), orderBy('date', 'desc'));
+        const unsubscribeSuggestions = onSnapshot(suggestionsQuery, snapshot => {
+            const loadedSuggestions: Suggestion[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Suggestion));
+            setSuggestions(loadedSuggestions);
+        }, error => {
+            console.error("Error fetching suggestions:", error);
+            showNotification("Error loading suggestions.");
+        });
 
-        const unsubscribeMessages = db.collection('messages')
-            .orderBy('date', 'desc')
-            .onSnapshot(snapshot => {
-                const loadedMessages: ContactMessage[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContactMessage));
-                setMessages(loadedMessages);
-            }, error => {
-                console.error("Error fetching messages:", error);
-                showNotification("Error loading messages.");
-            });
+        const messagesQuery = query(collection(db, 'messages'), orderBy('date', 'desc'));
+        const unsubscribeMessages = onSnapshot(messagesQuery, snapshot => {
+            const loadedMessages: ContactMessage[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContactMessage));
+            setMessages(loadedMessages);
+        }, error => {
+            console.error("Error fetching messages:", error);
+            showNotification("Error loading messages.");
+        });
         
         // Note: For a production app, tool definitions (components, icons) would likely
         // be stored separately from the editable data in Firestore. Here, we merge them.
         const staticToolMap = new Map(staticTools.map(t => [t.id, t]));
-        const unsubscribeTools = db.collection('tools')
-             .onSnapshot(snapshot => {
-                const dbTools: Partial<Tool>[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const mergedTools = dbTools.map(dbTool => {
-                    const staticData = staticToolMap.get(dbTool.id!);
-                    return { ...staticData, ...dbTool } as Tool;
-                });
-                setTools(mergedTools);
-             }, error => {
-                console.error("Error fetching tools:", error);
-                showNotification("Error loading tools.");
-             });
+        const toolsCollection = collection(db, 'tools');
+        const unsubscribeTools = onSnapshot(toolsCollection, snapshot => {
+            const dbTools: Partial<Tool>[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const mergedTools = dbTools.map(dbTool => {
+                const staticData = staticToolMap.get(dbTool.id!);
+                return { ...staticData, ...dbTool } as Tool;
+            });
+            setTools(mergedTools);
+        }, error => {
+            console.error("Error fetching tools:", error);
+            showNotification("Error loading tools.");
+        });
 
 
         return () => {
@@ -117,7 +116,7 @@ const AdminPage: React.FC = () => {
         delete (toolData as any).icon;
         
         try {
-            await db.collection('tools').doc(id).update(toolData);
+            await updateDoc(doc(db, 'tools', id), toolData);
             showNotification(`Tool "${updatedTool.name}" updated successfully!`);
         } catch (error) {
             console.error("Error updating tool: ", error);
@@ -131,7 +130,7 @@ const AdminPage: React.FC = () => {
     const handleConfirmDelete = async () => {
         if (selectedTool && db) {
             try {
-                await db.collection('tools').doc(selectedTool.id).delete();
+                await deleteDoc(doc(db, 'tools', selectedTool.id));
                 showNotification(`Tool "${selectedTool.name}" deleted successfully.`);
             } catch (error) {
                 console.error("Error deleting tool: ", error);
@@ -178,7 +177,7 @@ const AdminPage: React.FC = () => {
     const handleConfirmDeleteSuggestion = async () => {
         if (suggestionToDelete && suggestionToDelete.id && db) {
             try {
-                await db.collection('suggestions').doc(suggestionToDelete.id).delete();
+                await deleteDoc(doc(db, 'suggestions', suggestionToDelete.id));
                 showNotification(`Suggestion deleted successfully.`);
             } catch (error) {
                 console.error("Error deleting suggestion:", error);
@@ -197,7 +196,7 @@ const AdminPage: React.FC = () => {
     const handleConfirmDeleteMessage = async () => {
         if (messageToDelete && messageToDelete.id && db) {
             try {
-                await db.collection('messages').doc(messageToDelete.id).delete();
+                await deleteDoc(doc(db, 'messages', messageToDelete.id));
                 showNotification(`Message from ${messageToDelete.name} deleted successfully.`);
             } catch (error) {
                 console.error("Error deleting message:", error);

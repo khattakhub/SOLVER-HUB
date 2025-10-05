@@ -1,9 +1,7 @@
-// FIX: Switched to Firebase v9 compat libraries to resolve module resolution issues.
-import firebase from "firebase/compat/app";
-import "firebase/compat/analytics";
-import "firebase/compat/auth";
-import "firebase/compat/firestore";
-
+import { initializeApp, getApp, getApps } from "firebase/app";
+import { getAnalytics, isSupported } from "firebase/analytics";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration is now loaded from environment variables
 const firebaseConfig = {
@@ -25,15 +23,22 @@ let db;
 
 if (firebaseConfig.apiKey && firebaseConfig.projectId) {
   try {
-    app = firebase.initializeApp(firebaseConfig);
-    analytics = firebase.analytics();
-    auth = firebase.auth();
-    db = firebase.firestore();
-  } catch (error) {
+    // Check if app is already initialized to avoid errors during hot-reloading
+    app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+    // Initialize Analytics only if supported by the browser
+    isSupported().then(supported => {
+        if (supported) {
+            analytics = getAnalytics(app);
+        }
+    });
+  } catch (error)
+ {
     console.error("Firebase initialization failed:", error);
   }
 } else {
-    console.warn("Firebase configuration is incomplete. Analytics and other Firebase features may be disabled.");
+    console.warn("Firebase configuration is incomplete. Firebase features will be disabled.");
 }
 
 export { app, analytics, auth, db };

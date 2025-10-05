@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { auth } from '../services/firebase';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User as FirebaseUser } from 'firebase/auth';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User as FirebaseUser, updatePassword } from 'firebase/auth';
 
 interface User {
     uid: string;
@@ -13,6 +13,7 @@ interface AuthContextType {
     loading: boolean;
     login: (email: string, password: string) => Promise<boolean>;
     logout: () => Promise<void>;
+    changePassword: (newPassword: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,13 +62,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             console.error("Firebase logout error:", error);
         }
     };
+
+    const changePassword = async (newPassword: string): Promise<{ success: boolean; error?: string }> => {
+        if (!auth || !auth.currentUser) {
+            return { success: false, error: 'No user is logged in.' };
+        }
+        try {
+            await updatePassword(auth.currentUser, newPassword);
+            return { success: true };
+        } catch (error: any) {
+            console.error("Firebase change password error:", error);
+            let errorMessage = 'Failed to change password. Please try again.';
+            if (error.code === 'auth/weak-password') {
+                errorMessage = 'The new password is too weak. It must be at least 6 characters long.';
+            } else if (error.code === 'auth/requires-recent-login') {
+                errorMessage = 'This action is sensitive and requires recent authentication. Please log out and log back in before changing your password.';
+            }
+            return { success: false, error: errorMessage };
+        }
+    };
     
     // In a real app, you might have more complex logic for what defines an "admin".
     // For now, any logged-in user is considered an admin.
     const isAdmin = !!user;
 
     return (
-        <AuthContext.Provider value={{ user, isAdmin, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, isAdmin, loading, login, logout, changePassword }}>
             {children}
         </AuthContext.Provider>
     );

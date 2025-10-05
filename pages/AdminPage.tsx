@@ -21,10 +21,10 @@ const StatCard: React.FC<{ title: string; value: string | number; icon: React.Re
     </div>
 );
 
-type AdminTab = 'dashboard' | 'tools' | 'settings' | 'content' | 'suggestions' | 'inbox';
+type AdminTab = 'dashboard' | 'tools' | 'settings' | 'content' | 'suggestions' | 'inbox' | 'security';
 
 const AdminPage: React.FC = () => {
-    const { logout } = useAuth();
+    const { logout, user, changePassword } = useAuth();
     const navigate = useNavigate();
     const [tools, setTools] = useState<Tool[]>([]);
     const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
@@ -44,6 +44,11 @@ const AdminPage: React.FC = () => {
     const [messages, setMessages] = useState<ContactMessage[]>([]);
     const [messageToDelete, setMessageToDelete] = useState<ContactMessage | null>(null);
     const [isDeleteMessageModalOpen, setIsDeleteMessageModalOpen] = useState(false);
+    
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordChangeStatus, setPasswordChangeStatus] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
 
     useEffect(() => {
         if (!db) return;
@@ -209,6 +214,28 @@ const AdminPage: React.FC = () => {
         setMessageToDelete(null);
     };
 
+    const handlePasswordChange = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setPasswordChangeStatus(null);
+        if (newPassword !== confirmPassword) {
+            setPasswordChangeStatus({ type: 'error', text: 'Passwords do not match.' });
+            return;
+        }
+        if (newPassword.length < 6) {
+            setPasswordChangeStatus({ type: 'error', text: 'Password must be at least 6 characters long.' });
+            return;
+        }
+        const result = await changePassword(newPassword);
+        if (result.success) {
+            setPasswordChangeStatus({ type: 'success', text: 'Password updated successfully!' });
+            setNewPassword('');
+            setConfirmPassword('');
+        } else {
+            setPasswordChangeStatus({ type: 'error', text: result.error || 'An unknown error occurred.' });
+        }
+    };
+
+
     const tabs: { id: AdminTab, name: string }[] = [
         { id: 'dashboard', name: 'Dashboard' },
         { id: 'tools', name: 'Manage Tools' },
@@ -216,6 +243,7 @@ const AdminPage: React.FC = () => {
         { id: 'suggestions', name: 'User Suggestions' },
         { id: 'settings', name: 'Site Settings' },
         { id: 'content', name: 'Content Management' },
+        { id: 'security', name: 'Account Security' },
     ];
 
     return (
@@ -483,6 +511,52 @@ const AdminPage: React.FC = () => {
                                     <button type="submit" className="bg-primary text-white font-semibold px-6 py-2 rounded-md hover:bg-primary-dark transition-colors">Save Content</button>
                                 </div>
                              </form>
+                        </div>
+                    )}
+                    {activeTab === 'security' && (
+                        <div className="bg-white dark:bg-dark p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 max-w-xl mx-auto">
+                            <h2 className="text-2xl font-bold text-dark dark:text-light mb-6">Change Admin Password</h2>
+                            <p className="text-sm text-secondary dark:text-slate-400 mb-4">
+                                You are changing the password for the admin account: <strong className="text-dark dark:text-light">{user?.email}</strong>
+                            </p>
+                            <form onSubmit={handlePasswordChange} className="space-y-6">
+                                <div>
+                                    <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-slate-300">New Password</label>
+                                    <input
+                                        type="password"
+                                        id="newPassword"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Confirm New Password</label>
+                                    <input
+                                        type="password"
+                                        id="confirmPassword"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light"
+                                        required
+                                    />
+                                </div>
+                                {passwordChangeStatus && (
+                                    <div className={`text-center p-3 rounded-md text-sm ${
+                                        passwordChangeStatus.type === 'success'
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
+                                            : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'
+                                    }`}>
+                                        {passwordChangeStatus.text}
+                                    </div>
+                                )}
+                                <div className="text-right">
+                                    <button type="submit" className="bg-primary text-white font-semibold px-6 py-2 rounded-md hover:bg-primary-dark transition-colors">
+                                        Update Password
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     )}
                 </div>

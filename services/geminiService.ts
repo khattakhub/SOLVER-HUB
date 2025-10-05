@@ -17,17 +17,18 @@ const initializeAi = (): void => {
 
     const API_KEY = import.meta.env.VITE_API_KEY;
 
+if (!API_KEY) {
+    console.error("API_KEY is not set in environment variables. AI features will be disabled.");
+    return;
+}
 
-    if (!apiKey) {
-        console.error("API_KEY is not set in environment variables. AI features will be disabled.");
-        return;
-    }
+try {
+    aiInstance = new GoogleGenAI({ apiKey: API_KEY });
+} catch (error) {
+    console.error("Error initializing GoogleGenAI:", error);
+    aiInstance = null; // Ensure instance is null on error
+}
 
-    try {
-        aiInstance = new GoogleGenAI({ apiKey });
-    } catch (error) {
-        console.error("Error initializing GoogleGenAI:", error);
-        aiInstance = null; // Ensure instance is null on error
     }
 };
 

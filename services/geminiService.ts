@@ -18,18 +18,16 @@ const initializeAi = (): void => {
     // FIX: Use `process.env.API_KEY` as per the coding guidelines to access the API key.
     const API_KEY = process.env.API_KEY;
 
-if (!API_KEY) {
-    console.error("API_KEY is not set in environment variables. AI features will be disabled.");
-    return;
-}
+    if (!API_KEY) {
+        console.error("API_KEY is not set in environment variables. AI features will be disabled.");
+        return;
+    }
 
-try {
-    aiInstance = new GoogleGenAI({ apiKey: API_KEY });
-} catch (error) {
-    console.error("Error initializing GoogleGenAI:", error);
-    aiInstance = null; // Ensure instance is null on error
-}
-
+    try {
+        aiInstance = new GoogleGenAI({ apiKey: API_KEY });
+    } catch (error) {
+        console.error("Error initializing GoogleGenAI:", error);
+        aiInstance = null; // Ensure instance is null on error
     }
 };
 

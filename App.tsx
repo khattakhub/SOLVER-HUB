@@ -1,10 +1,11 @@
 import React, { Suspense, lazy, useEffect } from 'react';
-// FIX: Corrected import for react-router-dom components.
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useSiteSettings } from './contexts/SiteSettingsContext';
+import ContactPage from './pages/contact';
+import SuggestionPage from './pages/suggest';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const ToolsPage = lazy(() => import('./pages/ToolsPage'));
@@ -47,6 +48,8 @@ const App: React.FC = () => {
                             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                             <Route path="/terms-of-service" element={<TermsOfServicePage />} />
                             <Route path="/sitemap" element={<SitemapPage />} />
+                            <Route path="/contact" element={<ContactPage />} />
+                            <Route path="/suggest" element={<SuggestionPage />} />
                             <Route 
                                 path="/admin" 
                                 element={

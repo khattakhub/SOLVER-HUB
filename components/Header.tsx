@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-// FIX: Corrected import for react-router-dom components.
 import { Link, NavLink } from 'react-router-dom';
 import { NAV_LINKS } from '../constants';
 import { MenuIcon, XIcon, CodeIcon } from './icons';
@@ -9,6 +8,8 @@ import { useSiteSettings } from '../contexts/SiteSettingsContext';
 const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { settings } = useSiteSettings();
+
+    const allLinks = [...NAV_LINKS, { name: 'Contact', path: '/contact' }, { name: 'Suggest', path: '/suggest' }];
 
     return (
         <header className="bg-white shadow-md sticky top-0 z-50 dark:bg-dark dark:border-b dark:border-slate-800 transition-colors duration-300">
@@ -20,7 +21,7 @@ const Header: React.FC = () => {
                     </Link>
                     <div className="flex items-center">
                         <nav className="hidden md:flex space-x-8">
-                            {NAV_LINKS.map((link) => (
+                            {allLinks.map((link) => (
                                 <NavLink
                                     key={link.name}
                                     to={link.path}
@@ -49,7 +50,7 @@ const Header: React.FC = () => {
             {isMenuOpen && (
                 <div className="md:hidden bg-white dark:bg-dark border-t dark:border-slate-800">
                     <nav className="flex flex-col p-4 space-y-2">
-                        {NAV_LINKS.map((link) => (
+                        {allLinks.map((link) => (
                             <NavLink
                                 key={link.name}
                                 to={link.path}

@@ -1,6 +1,8 @@
+
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { db } from '../services/firebase';
 import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+import { initializeGeminiService } from '../services/geminiService';
 
 interface SocialLinks {
     twitter: string;
@@ -21,6 +23,7 @@ interface SiteSettings {
     socialLinks: SocialLinks;
     privacyPolicy: string;
     termsOfService: string;
+    geminiApiKey: string;
 }
 
 interface SiteSettingsContextType {
@@ -77,6 +80,7 @@ SolverHub has not reviewed all of the sites linked to its website and is not res
 
 SolverHub may revise these terms of service for its website at any time without notice. By using this website you are agreeing to be bound by the then current version of these terms of service.
     `.trim(),
+    geminiApiKey: '',
 };
 
 
@@ -93,30 +97,37 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
     useEffect(() => {
         if (!db) {
             console.warn("Firestore is not available. Using default site settings.");
+            initializeGeminiService(''); // Disable AI features if no DB
             return;
         }
 
         const settingsRef = doc(db, 'settings', SETTINGS_DOC_ID);
 
         const unsubscribe = onSnapshot(settingsRef, docSnap => {
+            let settingsData = defaultSettings;
             if (docSnap.exists()) {
                 const data = docSnap.data() as Partial<SiteSettings>;
-                 setSettings(prev => ({
-                    ...prev,
+                // Merge fetched data with defaults to ensure all properties exist
+                settingsData = {
+                    ...defaultSettings,
                     ...data,
                     socialLinks: {
-                        ...prev.socialLinks,
+                        ...defaultSettings.socialLinks,
                         ...(data.socialLinks || {})
                     }
-                }));
+                };
             } else {
                 // If settings don't exist in Firestore, create them with defaults
                 setDoc(settingsRef, defaultSettings).catch(err => {
                     console.error("Error initializing settings in Firestore:", err);
                 });
             }
+            setSettings(settingsData);
+            initializeGeminiService(settingsData.geminiApiKey);
         }, err => {
             console.error("Error fetching site settings:", err);
+            setSettings(defaultSettings);
+            initializeGeminiService(''); // Disable AI features on error
         });
 
         return () => unsubscribe();
@@ -131,6 +142,7 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
         }
         
         try {
+            // Use updateDoc to avoid overwriting fields that are not in newSettings
             await updateDoc(doc(db, 'settings', SETTINGS_DOC_ID), newSettings);
         } catch (error) {
             console.error("Could not save site settings to Firestore", error);

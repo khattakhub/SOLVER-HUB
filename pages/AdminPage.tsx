@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 // FIX: Corrected import for react-router-dom components.
 import { useNavigate } from 'react-router-dom';
@@ -34,6 +35,7 @@ const AdminPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
     const [siteSettings, setSiteSettings] = useState(settings);
     const [notification, setNotification] = useState('');
+    const [showApiKey, setShowApiKey] = useState(false);
 
     const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
     const [suggestionToDelete, setSuggestionToDelete] = useState<Suggestion | null>(null);
@@ -360,6 +362,37 @@ const AdminPage: React.FC = () => {
                                         <div>
                                             <label htmlFor="siteName" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Site Name</label>
                                             <input type="text" name="siteName" id="siteName" value={siteSettings.siteName} onChange={handleSettingsChange} className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light" />
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset>
+                                    <legend className="text-2xl font-bold text-dark dark:text-light mb-4">API Keys</legend>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label htmlFor="geminiApiKey" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Google Gemini API Key</label>
+                                            <div className="mt-1 relative rounded-md shadow-sm">
+                                                <input
+                                                    type={showApiKey ? 'text' : 'password'}
+                                                    name="geminiApiKey"
+                                                    id="geminiApiKey"
+                                                    value={siteSettings.geminiApiKey || ''}
+                                                    onChange={handleSettingsChange}
+                                                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowApiKey(!showApiKey)}
+                                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+                                                    aria-label="Toggle API key visibility"
+                                                >
+                                                    {showApiKey ? 
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> :
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><path d="m2 2 20 20"/></svg>
+                                                    }
+                                                </button>
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-1">This key is required for all AI-powered features to work.</p>
                                         </div>
                                     </div>
                                 </fieldset>

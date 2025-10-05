@@ -140,24 +140,7 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
 };
 
 export const generateImage = async (prompt: string): Promise<string> => {
-    const ai = getAi();
-    if (!ai) {
-        throw new Error(apiKeyError as string);
-    }
-    try {
-        const response = await ai.models.generateImages({
-            model: 'imagen-4.0-generate-001',
-            prompt: prompt,
-            config: {
-                numberOfImages: 1,
-                outputMimeType: 'image/jpeg',
-            },
-        });
-        const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
-        return `data:image/jpeg;base64,${base64ImageBytes}`;
-    } catch (error) {
-        handleApiError(error, "Failed to generate image");
-    }
+    throw new Error("Image generation is not supported in this environment. This feature is designed for a specific cloud setup and is not available in the local version.");
 };
 
 export const createChat = (): Chat => {

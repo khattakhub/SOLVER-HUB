@@ -17,6 +17,8 @@ const initializeAi = (): void => {
 
     // FIX: Use `process.env.API_KEY` as per the coding guidelines to access the API key.
     const API_KEY = process.env.API_KEY;
+    console.log("Loaded API Key for testing:", API_KEY);
+
 
     if (!API_KEY) {
         console.error("API_KEY is not set in environment variables. AI features will be disabled.");

@@ -16,7 +16,7 @@ const initializeAi = (): void => {
     isInitialized = true;
 
     // FIX: Use `process.env.API_KEY` as per the coding guidelines to access the API key.
-    const API_KEY = process.env.VITE_API_KEY;
+    const API_KEY = process.env.API_KEY;
     console.log("Loaded API Key for testing:", API_KEY);
 
 

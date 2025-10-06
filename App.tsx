@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect } from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -24,45 +24,54 @@ const LoadingSpinner: React.FC = () => (
     </div>
 );
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
     const { settings } = useSiteSettings();
+    const location = useLocation();
 
     useEffect(() => {
         if (settings.siteName) {
             document.title = settings.siteName;
         }
     }, [settings.siteName]);
-    
+
+    const showFooter = location.pathname === '/';
+
+    return (
+        <div className="flex flex-col min-h-screen font-sans">
+            <Header />
+            <main className="flex-grow">
+                <Suspense fallback={<LoadingSpinner />}>
+                    <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/tools" element={<ToolsPage />} />
+                        <Route path="/tools/:toolId" element={<ToolDetailPage />} />
+                        <Route path="/future" element={<FutureToolsPage />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+                        <Route path="/sitemap" element={<SitemapPage />} />
+                        <Route path="/contact" element={<ContactPage />} />
+                        <Route path="/suggest" element={<SuggestionPage />} />
+                        <Route
+                            path="/admin"
+                            element={
+                                <ProtectedRoute>
+                                    <AdminPage />
+                                </ProtectedRoute>
+                            }
+                        />
+                    </Routes>
+                </Suspense>
+            </main>
+            {showFooter && <Footer />}
+        </div>
+    );
+}
+
+const App: React.FC = () => {
     return (
         <HashRouter>
-            <div className="flex flex-col min-h-screen font-sans">
-                <Header />
-                <main className="flex-grow">
-                    <Suspense fallback={<LoadingSpinner />}>
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/tools" element={<ToolsPage />} />
-                            <Route path="/tools/:toolId" element={<ToolDetailPage />} />
-                            <Route path="/future" element={<FutureToolsPage />} />
-                            <Route path="/login" element={<LoginPage />} />
-                            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-                            <Route path="/sitemap" element={<SitemapPage />} />
-                            <Route path="/contact" element={<ContactPage />} />
-                            <Route path="/suggest" element={<SuggestionPage />} />
-                            <Route 
-                                path="/admin" 
-                                element={
-                                    <ProtectedRoute>
-                                        <AdminPage />
-                                    </ProtectedRoute>
-                                } 
-                            />
-                        </Routes>
-                    </Suspense>
-                </main>
-                <Footer />
-            </div>
+            <AppContent />
         </HashRouter>
     );
 };

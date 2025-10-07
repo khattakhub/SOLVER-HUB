@@ -6,67 +6,67 @@
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
 <url>
-  <loc>https://solver-hub.vercel.app/#/</loc>
+  <loc>https://solver-hub.vercel.app/</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
-  <loc>https://solver-hub.vercel.app/#/tools</loc>
+  <loc>https://solver-hub.vercel.app/tools</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://solver-hub.vercel.app/#/future</loc>
+  <loc>https://solver-hub.vercel.app/future</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://solver-hub.vercel.app/#/contact</loc>
+  <loc>https://solver-hub.vercel.app/contact</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://solver-hub.vercel.app/#/suggest</loc>
+  <loc>https://solver-hub.vercel.app/suggest</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://solver-hub.vercel.app/#/privacy-policy</loc>
+  <loc>https://solver-hub.vercel.app/privacy-policy</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://solver-hub.vercel.app/#/terms-of-service</loc>
+  <loc>https://solver-hub.vercel.app/terms-of-service</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://solver-hub.vercel.app/#/tools/text-summarizer</loc>
+  <loc>https://solver-hub.vercel.app/tools/text-summarizer</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://solver-hub.vercel.app/#/tools/grammar-spell-checker</loc>
+  <loc>https://solver-hub.vercel.app/tools/grammar-spell-checker</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://solver-hub.vercel.app/#/tools/image-to-text</loc>
+  <loc>https://solver-hub.vercel.app/tools/image-to-text</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://solver-hub.vercel.app/#/tools/unit-converter</loc>
+  <loc>https://solver-hub.vercel.app/tools/unit-converter</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://solver-hub.vercel.app/#/tools/currency-converter</loc>
+  <loc>https://solver-hub.vercel.app/tools/currency-converter</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://solver-hub.vercel.app/#/tools/pdf-merger</loc>
+  <loc>https://solver-hub.vercel.app/tools/pdf-merger</loc>
   <lastmod>2024-07-30T00:00:00+00:00</lastmod>
   <priority>0.64</priority>
 </url>

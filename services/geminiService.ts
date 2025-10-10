@@ -4,31 +4,12 @@ import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 let aiInstance: GoogleGenAI | null = null;
 let apiKeyError: string | null = "AI features are disabled. Please configure the Gemini API Key in the admin settings panel.";
 
-// For local development, initialize the Gemini service with the API key from the .env.local file.
-const apiKeyFromEnv = import.meta.env.VITE_GEMINI_API_KEY;
-
-if (apiKeyFromEnv && typeof apiKeyFromEnv === 'string') {
-    try {
-        aiInstance = new GoogleGenAI({ apiKey: apiKeyFromEnv });
-        apiKeyError = null; // Success!
-    } catch (error) {
-        console.error("Error initializing GoogleGenAI from environment variable:", error);
-        aiInstance = null;
-        apiKeyError = "Failed to initialize Gemini service from environment variable. The API Key might be invalid.";
-    }
-}
-
 /**
  * Initializes the GoogleGenAI instance. This function is called from the SiteSettingsContext
  * once the API key has been fetched from Firestore.
  * @param apiKey The Google Gemini API key.
  */
 export const initializeGeminiService = (apiKey: string): void => {
-    // If the AI instance is already initialized (e.g., from .env.local), do not overwrite it.
-    if (aiInstance) {
-        return;
-    }
-    
     if (!apiKey || !apiKey.trim()) {
         aiInstance = null;
         apiKeyError = "AI features are disabled. Please configure the Gemini API Key in the admin settings panel.";
@@ -83,7 +64,7 @@ export const checkGrammar = async (text: string): Promise<string> => {
         throw new Error(apiKeyError as string);
     }
     try {
-        const prompt = `Correct any grammar and spelling mistakes in the following text. Return only the corrected text without any introductory phrases:\n\n\"${text}\"`;
+        const prompt = `Correct any grammar and spelling mistakes in the following text. Return only the corrected text without any introductory phrases:\n\n"${text}"`;
         const response: GenerateContentResponse = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
@@ -140,7 +121,24 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
 };
 
 export const generateImage = async (prompt: string): Promise<string> => {
-    throw new Error("Image generation is not supported in this environment. This feature is designed for a specific cloud setup and is not available in the local version.");
+    const ai = getAi();
+    if (!ai) {
+        throw new Error(apiKeyError as string);
+    }
+    try {
+        const response = await ai.models.generateImages({
+            model: 'imagen-4.0-generate-001',
+            prompt: prompt,
+            config: {
+                numberOfImages: 1,
+                outputMimeType: 'image/jpeg',
+            },
+        });
+        const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
+        return `data:image/jpeg;base64,${base64ImageBytes}`;
+    } catch (error) {
+        handleApiError(error, "Failed to generate image");
+    }
 };
 
 export const createChat = (): Chat => {

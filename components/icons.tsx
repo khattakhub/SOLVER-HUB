@@ -57,12 +57,6 @@ export const PdfIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
-export const ChatIcon: React.FC<{ className?: string }> = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-    </svg>
-);
-
 export const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
         <line x1="4" x2="20" y1="12" y2="12" />
@@ -78,10 +72,10 @@ export const XIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
-export const CodeIcon: React.FC<{ className?: string }> = ({ className }) => (
+export const CodeIcon: React.FC<{ className?: string, leftChevronClass?: string, rightChevronClass?: string }> = ({ className, leftChevronClass, rightChevronClass }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <polyline points="16 18 22 12 16 6" />
-        <polyline points="8 6 2 12 8 18" />
+        <polyline points="16 18 22 12 16 6" className={rightChevronClass} />
+        <polyline points="8 6 2 12 8 18" className={leftChevronClass} />
     </svg>
 );
 
@@ -105,6 +99,7 @@ export const MoonIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
+// FIX: Added ImageIcon component for the AI Chat Bot.
 export const ImageIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
         <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
@@ -113,6 +108,7 @@ export const ImageIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
+// FIX: Added BotIcon component for the AI Chat Bot.
 export const BotIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
         <path d="M12 8V4H8" />

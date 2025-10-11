@@ -1,5 +1,8 @@
 
-import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
+
+
+// FIX: Imported the Chat type from @google/genai.
+import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
 
 let aiInstance: GoogleGenAI | null = null;
 let apiKeyError: string | null = "AI features are disabled. Please configure the Gemini API Key in the admin settings panel.";
@@ -120,6 +123,23 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
     }
 };
 
+// FIX: Added createChat function to initialize a new chat session.
+export const createChat = (): Chat => {
+    const ai = getAi();
+    if (!ai) {
+        throw new Error(apiKeyError as string);
+    }
+    try {
+        const chat: Chat = ai.chats.create({
+            model: 'gemini-2.5-flash',
+        });
+        return chat;
+    } catch (error) {
+        handleApiError(error, "Failed to create chat session");
+    }
+};
+
+// FIX: Added generateImage function to create an image from a text prompt.
 export const generateImage = async (prompt: string): Promise<string> => {
     const ai = getAi();
     if (!ai) {
@@ -130,26 +150,15 @@ export const generateImage = async (prompt: string): Promise<string> => {
             model: 'imagen-4.0-generate-001',
             prompt: prompt,
             config: {
-                numberOfImages: 1,
-                outputMimeType: 'image/jpeg',
+              numberOfImages: 1,
+              outputMimeType: 'image/png',
             },
         });
+
         const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
-        return `data:image/jpeg;base64,${base64ImageBytes}`;
+        const imageUrl = `data:image/png;base64,${base64ImageBytes}`;
+        return imageUrl;
     } catch (error) {
         handleApiError(error, "Failed to generate image");
     }
-};
-
-export const createChat = (): Chat => {
-    const ai = getAi();
-    if (!ai) {
-        throw new Error(apiKeyError as string);
-    }
-    return ai.chats.create({
-      model: 'gemini-2.5-flash',
-      config: {
-        systemInstruction: 'You are a helpful AI assistant called Problem-Solver Bot. You provide clear, concise, and accurate answers to user questions.',
-      },
-    });
 };

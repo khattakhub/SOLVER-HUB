@@ -1,11 +1,6 @@
-
-
-
-
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { db } from '../services/firebase';
-// FIX: The project appears to be using Firebase v8 SDK.
-// The imports have been changed from modular (v9+) to the v8 compatible syntax.
+import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { initializeGeminiService } from '../services/geminiService';
 
 interface SocialLinks {
@@ -97,8 +92,6 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
     }, [settings.primaryColor, settings.primaryColorDark]);
 
     useEffect(() => {
-        // FIX: Initialize Gemini service. The function is now a no-op but is kept for compatibility.
-        // The API key is now handled via environment variables inside the service itself.
         initializeGeminiService('');
         
         if (!db) {
@@ -106,13 +99,11 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
             return;
         }
 
-        // FIX: Switched from v9 `doc(...)` to v8 `db.collection(...).doc(...)`
-        const settingsRef = db.collection('settings').doc(SETTINGS_DOC_ID);
-
-        // FIX: Switched from v9 `onSnapshot(ref, ...)` to v8 `ref.onSnapshot(...)`
-        const unsubscribe = settingsRef.onSnapshot((docSnap: any) => {
+        const settingsRef = doc(db, 'settings', SETTINGS_DOC_ID);
+        
+        const unsubscribe = onSnapshot(settingsRef, (docSnap) => {
             let settingsData = defaultSettings;
-            if (docSnap.exists) {
+            if (docSnap.exists()) {
                 const data = docSnap.data() as Partial<SiteSettings>;
                 // Merge fetched data with defaults to ensure all properties exist
                 settingsData = {
@@ -125,8 +116,7 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
                 };
             } else {
                 // If settings don't exist in Firestore, create them with defaults
-                // FIX: Switched from v9 `setDoc(ref, ...)` to v8 `ref.set(...)`
-                settingsRef.set(defaultSettings).catch((err: any) => {
+                setDoc(settingsRef, defaultSettings).catch((err: any) => {
                     console.error("Error initializing settings in Firestore:", err);
                 });
             }
@@ -148,9 +138,8 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
         }
         
         try {
-            // Use updateDoc to avoid overwriting fields that are not in newSettings
-            // FIX: Switched from v9 `updateDoc(doc(...))` to v8 `db.collection(...).doc(...).update(...)`
-            await db.collection('settings').doc(SETTINGS_DOC_ID).update(newSettings);
+            const settingsRef = doc(db, 'settings', SETTINGS_DOC_ID);
+            await updateDoc(settingsRef, newSettings);
         } catch (error) {
             console.error("Could not save site settings to Firestore", error);
         }

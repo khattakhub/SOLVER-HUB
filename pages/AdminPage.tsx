@@ -1,11 +1,8 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../services/firebase';
-// FIX: The project appears to be using Firebase v8 SDK.
-// The imports have been changed from modular (v9+) to the v8 compatible syntax.
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { Tool, Suggestion, ContactMessage, ToolCategory } from '../types';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import EditToolModal from '../components/EditToolModal';
@@ -54,40 +51,34 @@ const AdminPage: React.FC = () => {
     useEffect(() => {
         if (!db) return;
 
-        // FIX: Switched from v9 `query(collection(...), orderBy(...))` to v8 `db.collection(...).orderBy(...)`
-        const suggestionsQuery = db.collection('suggestions').orderBy('date', 'desc');
-        // FIX: Switched from v9 `onSnapshot(query, ...)` to v8 `query.onSnapshot(...)`
-        const unsubscribeSuggestions = suggestionsQuery.onSnapshot((snapshot: any) => {
-            const loadedSuggestions: Suggestion[] = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Suggestion));
+        const suggestionsQuery = query(collection(db, 'suggestions'), orderBy('date', 'desc'));
+        const unsubscribeSuggestions = onSnapshot(suggestionsQuery, (snapshot) => {
+            const loadedSuggestions: Suggestion[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Suggestion));
             setSuggestions(loadedSuggestions);
-        }, (error: any) => {
+        }, (error) => {
             console.error("Error fetching suggestions:", error);
             showNotification("Error loading suggestions.");
         });
 
-        // FIX: Switched from v9 `query(collection(...), orderBy(...))` to v8 `db.collection(...).orderBy(...)`
-        const messagesQuery = db.collection('messages').orderBy('date', 'desc');
-        // FIX: Switched from v9 `onSnapshot(query, ...)` to v8 `query.onSnapshot(...)`
-        const unsubscribeMessages = messagesQuery.onSnapshot((snapshot: any) => {
-            const loadedMessages: ContactMessage[] = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as ContactMessage));
+        const messagesQuery = query(collection(db, 'messages'), orderBy('date', 'desc'));
+        const unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
+            const loadedMessages: ContactMessage[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContactMessage));
             setMessages(loadedMessages);
-        }, (error: any) => {
+        }, (error) => {
             console.error("Error fetching messages:", error);
             showNotification("Error loading messages.");
         });
         
-        // Note: For a production app, tool definitions (components, icons) would likely
-        // be stored separately from the editable data in Firestore. Here, we merge them.
         const staticToolMap = new Map(staticTools.map(t => [t.id, t]));
-        const toolsCollection = db.collection('tools');
-        const unsubscribeTools = toolsCollection.onSnapshot((snapshot: any) => {
-            const dbTools: Partial<Tool>[] = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+        const toolsCollectionRef = collection(db, 'tools');
+        const unsubscribeTools = onSnapshot(toolsCollectionRef, (snapshot) => {
+            const dbTools: Partial<Tool>[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             const mergedTools = dbTools.map(dbTool => {
                 const staticData = staticToolMap.get(dbTool.id!);
                 return { ...staticData, ...dbTool } as Tool;
             });
             setTools(mergedTools);
-        }, (error: any) => {
+        }, (error) => {
             console.error("Error fetching tools:", error);
             showNotification("Error loading tools.");
         });
@@ -128,8 +119,8 @@ const AdminPage: React.FC = () => {
         delete (toolData as any).icon;
         
         try {
-            // FIX: Switched from v9 `updateDoc(doc(...))` to v8 `db.collection(...).doc(...).update(...)`
-            await db.collection('tools').doc(id).update(toolData);
+            const toolRef = doc(db, 'tools', id);
+            await updateDoc(toolRef, toolData);
             showNotification(`Tool "${updatedTool.name}" updated successfully!`);
         } catch (error) {
             console.error("Error updating tool: ", error);
@@ -143,8 +134,7 @@ const AdminPage: React.FC = () => {
     const handleConfirmDelete = async () => {
         if (selectedTool && db) {
             try {
-                // FIX: Switched from v9 `deleteDoc(doc(...))` to v8 `db.collection(...).doc(...).delete()`
-                await db.collection('tools').doc(selectedTool.id).delete();
+                await deleteDoc(doc(db, 'tools', selectedTool.id));
                 showNotification(`Tool "${selectedTool.name}" deleted successfully.`);
             } catch (error) {
                 console.error("Error deleting tool: ", error);
@@ -191,8 +181,7 @@ const AdminPage: React.FC = () => {
     const handleConfirmDeleteSuggestion = async () => {
         if (suggestionToDelete && suggestionToDelete.id && db) {
             try {
-                // FIX: Switched from v9 `deleteDoc(doc(...))` to v8 `db.collection(...).doc(...).delete()`
-                await db.collection('suggestions').doc(suggestionToDelete.id).delete();
+                await deleteDoc(doc(db, 'suggestions', suggestionToDelete.id));
                 showNotification(`Suggestion deleted successfully.`);
             } catch (error) {
                 console.error("Error deleting suggestion:", error);
@@ -211,8 +200,7 @@ const AdminPage: React.FC = () => {
     const handleConfirmDeleteMessage = async () => {
         if (messageToDelete && messageToDelete.id && db) {
             try {
-                // FIX: Switched from v9 `deleteDoc(doc(...))` to v8 `db.collection(...).doc(...).delete()`
-                await db.collection('messages').doc(messageToDelete.id).delete();
+                await deleteDoc(doc(db, 'messages', messageToDelete.id));
                 showNotification(`Message from ${messageToDelete.name} deleted successfully.`);
             } catch (error) {
                 console.error("Error deleting message:", error);
@@ -403,7 +391,6 @@ const AdminPage: React.FC = () => {
                                     </div>
                                 </fieldset>
 
-                                {/* FIX: Removed API Key section as it's now handled by environment variables per Gemini API guidelines. */}
                                 <fieldset>
                                     <legend className="text-2xl font-bold text-dark dark:text-light mb-4">Appearance</legend>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

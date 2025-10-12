@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Suggestion } from '../types';
 import { db } from '../services/firebase';
-// FIX: The project appears to be using Firebase v8 SDK.
-// The imports have been changed from modular (v9+) to the v8 compatible syntax.
+import { collection, addDoc } from 'firebase/firestore';
+
 
 const futureTools = [
     { name: 'Video Summarizer', description: 'Get key points from long videos instantly.' },
@@ -32,13 +32,13 @@ const FutureToolsPage: React.FC = () => {
         setSubmitMessage(null);
 
         try {
-            const newSuggestion = {
+            const newSuggestion: Suggestion = {
                 idea,
                 description,
                 date: new Date().toISOString(),
             };
-            // FIX: Switched from v9 `addDoc(collection(...))` to v8 `db.collection(...).add(...)`
-            await db.collection('suggestions').add(newSuggestion);
+            
+            await addDoc(collection(db, 'suggestions'), newSuggestion);
 
             setSubmitMessage({ type: 'success', text: 'Thank you! Your suggestion has been submitted.' });
             setIdea('');

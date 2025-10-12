@@ -1,5 +1,4 @@
 import React, { Suspense, lazy, useEffect } from 'react';
-// FIX: Corrected import for react-router-dom components.
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';

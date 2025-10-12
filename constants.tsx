@@ -1,10 +1,26 @@
-
-
 import React, { lazy } from 'react';
 import { Tool, ToolCategory } from './types';
-import { SummarizeIcon, GrammarIcon, OcrIcon, UnitConvertIcon, CurrencyIcon, PdfIcon } from './components/icons';
+import { SummarizeIcon, GrammarIcon, OcrIcon, UnitConvertIcon, CurrencyIcon, PdfIcon, BotIcon, ImageIcon } from './components/icons';
 
 export const TOOLS: Tool[] = [
+    {
+        id: 'ai-chat-bot',
+        name: 'AI Chat Bot',
+        description: 'Chat with an AI assistant. Ask questions or generate images.',
+        icon: <BotIcon className="w-8 h-8 text-primary" />,
+        category: ToolCategory.AI,
+        component: lazy(() => import('./tools/AiChatBot')),
+        isFeatured: true,
+    },
+    {
+        id: 'ai-image-generator',
+        name: 'AI Image Generator',
+        description: 'Create unique images from text descriptions using AI.',
+        icon: <ImageIcon className="w-8 h-8 text-primary" />,
+        category: ToolCategory.AI,
+        component: lazy(() => import('./tools/ImageGenerator')),
+        isFeatured: true,
+    },
     {
         id: 'text-summarizer',
         name: 'Text Summarizer',

@@ -1,5 +1,4 @@
 import React from 'react';
-// FIX: Corrected import for react-router-dom components.
 import { useParams, Link } from 'react-router-dom';
 import { TOOLS } from '../constants';
 

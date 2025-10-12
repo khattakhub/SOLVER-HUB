@@ -98,7 +98,6 @@ const PdfMerger: React.FC = () => {
                 />
                 {files && files.length > 0 && (
                     <ul className="mt-4 list-disc list-inside bg-gray-50 dark:bg-slate-800 p-3 rounded-md w-full">
-                        {/* Fix: Explicitly type 'file' as File to resolve type inference issue. */}
                         {Array.from(files).map((file: File) => <li key={file.name} className="text-sm text-secondary dark:text-slate-400">{file.name}</li>)}
                     </ul>
                 )}

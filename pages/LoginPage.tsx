@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-// FIX: Corrected import for react-router-dom components.
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { CodeIcon } from '../components/icons';

@@ -1,7 +1,3 @@
-
-
-
-// FIX: Imported the Chat type from @google/genai.
 import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
 
 let aiInstance: GoogleGenAI | null = null;
@@ -123,7 +119,6 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
     }
 };
 
-// FIX: Added createChat function to initialize a new chat session.
 export const createChat = (): Chat => {
     const ai = getAi();
     if (!ai) {
@@ -139,7 +134,6 @@ export const createChat = (): Chat => {
     }
 };
 
-// FIX: Added generateImage function to create an image from a text prompt.
 export const generateImage = async (prompt: string): Promise<string> => {
     const ai = getAi();
     if (!ai) {

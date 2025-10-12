@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { db } from '../services/firebase';
 import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
-import { initializeGeminiService } from '../services/geminiService';
 
 interface SocialLinks {
     twitter: string;
@@ -92,8 +91,6 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
     }, [settings.primaryColor, settings.primaryColorDark]);
 
     useEffect(() => {
-        initializeGeminiService('');
-        
         if (!db) {
             console.warn("Firestore is not available. Using default site settings.");
             return;

@@ -1,26 +1,37 @@
 
 import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
 
-// FIX: Per @google/genai guidelines, API key must be sourced from environment variables.
-// The previous dynamic key implementation has been removed and the service is initialized once here.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+let ai: GoogleGenAI | null = null;
+
+// This function initializes the GoogleGenAI instance on first use,
+// preventing the app from crashing on load if the API key is not set.
+const getAi = (): GoogleGenAI => {
+    if (!ai) {
+        // Per @google/genai guidelines, API key must be sourced from environment variables.
+        if (!process.env.API_KEY) {
+            console.error("Gemini API key is not set in environment variables. AI features will be disabled.");
+            throw new Error("Gemini API Key not found. Please set the API_KEY environment variable on your deployment platform.");
+        }
+        ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    }
+    return ai;
+};
 
 
 /**
- * @deprecated This function is no longer needed as the Gemini service is now initialized automatically using environment variables. It is kept for backwards compatibility to prevent crashes from existing calls, but it does nothing.
+ * @deprecated This function is no longer needed as the Gemini service is now initialized automatically.
  */
 export const initializeGeminiService = (apiKey: string): void => {
-    // This function is intentionally left empty. The Gemini service is initialized above using environment variables.
-    if (!process.env.API_KEY) {
-        console.warn("Gemini API key is not set in environment variables. AI features will be disabled.");
-    }
+    // This function is intentionally left empty.
 };
 
 
 // Helper function to handle API errors consistently.
 const handleApiError = (error: unknown, defaultMessage: string): never => {
     console.error(defaultMessage, error);
-    // For other errors, we throw a more generic message.
+    if (error instanceof Error && error.message.includes("API Key not found")) {
+        throw error;
+    }
     throw new Error(`${defaultMessage}. Please try again.`);
 };
 
@@ -28,7 +39,7 @@ const handleApiError = (error: unknown, defaultMessage: string): never => {
 export const summarizeText = async (text: string): Promise<string> => {
     try {
         const prompt = `Summarize the following text into a few concise bullet points:\n\n${text}`;
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        const response: GenerateContentResponse = await getAi().models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
         });
@@ -41,7 +52,7 @@ export const summarizeText = async (text: string): Promise<string> => {
 export const checkGrammar = async (text: string): Promise<string> => {
     try {
         const prompt = `Correct any grammar and spelling mistakes in the following text. Return only the corrected text without any introductory phrases:\n\n"${text}"`;
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        const response: GenerateContentResponse = await getAi().models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
         });
@@ -61,7 +72,7 @@ export const getTextFromImage = async (base64Image: string, mimeType: string): P
         };
         const textPart = { text: "Extract all text from this image. If there is no text, say so." };
 
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        const response: GenerateContentResponse = await getAi().models.generateContent({
             model: 'gemini-2.5-flash',
             contents: { parts: [imagePart, textPart] },
         });
@@ -74,7 +85,7 @@ export const getTextFromImage = async (base64Image: string, mimeType: string): P
 export const getCurrencyConversion = async (amount: number, from: string, to: string): Promise<string> => {
     try {
         const prompt = `Convert ${amount} ${from} to ${to}. Provide only the final converted numeric value, without currency symbols or any extra text.`;
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        const response: GenerateContentResponse = await getAi().models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
         });
@@ -91,7 +102,7 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
 // FIX: Added missing createChat function for AiChatBot.tsx
 export const createChat = (): Chat => {
     try {
-        const chat: Chat = ai.chats.create({
+        const chat: Chat = getAi().chats.create({
             model: 'gemini-2.5-flash',
         });
         return chat;
@@ -103,7 +114,7 @@ export const createChat = (): Chat => {
 // FIX: Added missing generateImage function for ImageGenerator.tsx and AiChatBot.tsx
 export const generateImage = async (prompt: string): Promise<string> => {
     try {
-        const response = await ai.models.generateImages({
+        const response = await getAi().models.generateImages({
             model: 'imagen-4.0-generate-001',
             prompt: prompt,
             config: {

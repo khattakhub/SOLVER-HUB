@@ -3,9 +3,26 @@ import { getAnalytics, isSupported } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration is now loaded from environment variables.
-// This is a security best practice. Do not hardcode these values.
-// You must configure these variables in your deployment environment (e.g., Vercel).
+// --- IMPORTANT FOR DEPLOYMENT ---
+// The configuration object below, which you provided, is for your reference.
+// DO NOT UNCOMMENT THIS BLOCK. Hardcoding credentials is a major security risk as they
+// become publicly visible.
+//
+// You MUST set these values as Environment Variables on your deployment platform (e.g., Vercel).
+// The variable names you need to use are listed in the comments.
+/*
+const firebaseConfigReference = {
+  apiKey: "AIzaSyCnl9H7GXK_aIXiOyTxmMAEEfPcq_EH28s",           // Environment Variable Name: FIREBASE_API_KEY
+  authDomain: "problem-solver-hub-by-shahzad.firebaseapp.com", // Environment Variable Name: FIREBASE_AUTH_DOMAIN
+  projectId: "problem-solver-hub-by-shahzad",                  // Environment Variable Name: FIREBASE_PROJECT_ID
+  storageBucket: "problem-solver-hub-by-shahzad.firebasestorage.app",  // Environment Variable Name: FIREBASE_STORAGE_BUCKET
+  messagingSenderId: "163021811851",                           // Environment Variable Name: FIREBASE_MESSAGING_SENDER_ID
+  appId: "1:163021811851:web:ace0b2f234ca2384a6e48e",         // Environment Variable Name: FIREBASE_APP_ID
+  measurementId: "G-1DG8JKP6BP"                                // Environment Variable Name: FIREBASE_MEASUREMENT_ID
+};
+*/
+
+// Your web app's Firebase configuration is loaded from environment variables.
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -16,18 +33,19 @@ const firebaseConfig = {
   measurementId: process.env.FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase only if the essential configuration is provided to prevent errors.
+// Initialize Firebase and export its status
 let app;
 let analytics;
 let auth;
 let db;
+let isFirebaseInitialized = false;
 
 if (firebaseConfig.apiKey && firebaseConfig.projectId) {
   try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
-    // Initialize Analytics only if supported by the browser
+    isFirebaseInitialized = true;
     isSupported().then(supported => {
         if (supported) {
             analytics = getAnalytics(app);
@@ -36,9 +54,10 @@ if (firebaseConfig.apiKey && firebaseConfig.projectId) {
   } catch (error)
  {
     console.error("Firebase initialization failed:", error);
+    isFirebaseInitialized = false;
   }
 } else {
-    console.warn("Firebase configuration is incomplete. Firebase features will be disabled. Ensure all FIREBASE_ environment variables are set.");
+    console.warn("Firebase configuration is incomplete. Firebase features will be disabled. Ensure all FIREBASE_ environment variables are set in your deployment environment.");
 }
 
-export { app, analytics, auth, db };
+export { app, analytics, auth, db, isFirebaseInitialized };

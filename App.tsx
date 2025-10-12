@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useSiteSettings } from './contexts/SiteSettingsContext';
 import LoadingIndicator from './components/LoadingIndicator';
+import { isFirebaseInitialized } from './services/firebase';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const ToolsPage = lazy(() => import('./pages/ToolsPage'));
@@ -17,12 +18,29 @@ const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 const SitemapPage = lazy(() => import('./pages/SitemapPage'));
 
 
+const FirebaseConnectionBanner = () => {
+    if (isFirebaseInitialized) {
+        return null;
+    }
+
+    return (
+        <div 
+            className="bg-red-600 text-white text-center p-2 text-sm font-semibold z-50 sticky top-0"
+            role="alert"
+        >
+            <strong>Configuration Incomplete:</strong> Firebase services are not connected. Admin, login, and contact features will not work. Please configure Firebase environment variables in the deployment settings.
+        </div>
+    );
+};
+
+
 const PageLayout: React.FC = () => {
     const location = useLocation();
     
     return (
         <div className="flex flex-col min-h-screen font-sans">
             <Header />
+            <FirebaseConnectionBanner />
             <main className="flex-grow">
                 <Suspense fallback={<LoadingIndicator />}>
                     <Routes>

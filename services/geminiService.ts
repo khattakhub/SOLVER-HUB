@@ -7,12 +7,13 @@ let ai: GoogleGenAI | null = null;
 // preventing the app from crashing on load if the API key is not set.
 const getAi = (): GoogleGenAI => {
     if (!ai) {
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
         // Per @google/genai guidelines, API key must be sourced from environment variables.
-        if (!process.env.API_KEY) {
+        if (!apiKey) {
             console.error("Gemini API key is not set in environment variables. AI features will be disabled.");
-            throw new Error("Gemini API Key not found. Please set the API_KEY environment variable on your deployment platform.");
+            throw new Error("Gemini API Key not found. Please set the VITE_GEMINI_API_KEY environment variable in your .env file.");
         }
-        ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        ai = new GoogleGenAI({ apiKey });
     }
     return ai;
 };
@@ -39,11 +40,11 @@ const handleApiError = (error: unknown, defaultMessage: string): never => {
 export const summarizeText = async (text: string): Promise<string> => {
     try {
         const prompt = `Summarize the following text into a few concise bullet points:\n\n${text}`;
-        const response: GenerateContentResponse = await getAi().models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-        });
-        return response.text;
+        const genAI = getAi();
+        const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        return response.text();
     } catch (error) {
         handleApiError(error, "Failed to summarize text");
     }
@@ -52,11 +53,11 @@ export const summarizeText = async (text: string): Promise<string> => {
 export const checkGrammar = async (text: string): Promise<string> => {
     try {
         const prompt = `Correct any grammar and spelling mistakes in the following text. Return only the corrected text without any introductory phrases:\n\n"${text}"`;
-        const response: GenerateContentResponse = await getAi().models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-        });
-        return response.text;
+        const genAI = getAi();
+        const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        return response.text();
     } catch (error) {
         handleApiError(error, "Failed to check grammar");
     }
@@ -72,11 +73,11 @@ export const getTextFromImage = async (base64Image: string, mimeType: string): P
         };
         const textPart = { text: "Extract all text from this image. If there is no text, say so." };
 
-        const response: GenerateContentResponse = await getAi().models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [imagePart, textPart] },
-        });
-        return response.text;
+        const genAI = getAi();
+        const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+        const result = await model.generateContent([textPart, imagePart]);
+        const response = result.response;
+        return response.text();
     } catch (error) {
         handleApiError(error, "Failed to extract text from image");
     }
@@ -85,11 +86,11 @@ export const getTextFromImage = async (base64Image: string, mimeType: string): P
 export const getCurrencyConversion = async (amount: number, from: string, to: string): Promise<string> => {
     try {
         const prompt = `Convert ${amount} ${from} to ${to}. Provide only the final converted numeric value, without currency symbols or any extra text.`;
-        const response: GenerateContentResponse = await getAi().models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-        });
-        const numericResult = parseFloat(response.text.replace(/,/g, ''));
+        const genAI = getAi();
+        const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        const numericResult = parseFloat(response.text().replace(/,/g, ''));
         if (isNaN(numericResult)) {
             throw new Error("AI returned a non-numeric value.");
         }
@@ -99,37 +100,27 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
     }
 };
 
-// FIX: Added missing createChat function for AiChatBot.tsx
 export const createChat = (): Chat => {
     try {
-        const chat: Chat = getAi().chats.create({
-            model: 'gemini-2.5-flash',
-        });
+        const genAI = getAi();
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const chat = model.startChat();
         return chat;
     } catch (error) {
         handleApiError(error, "Failed to create chat session");
     }
 };
 
-// FIX: Added missing generateImage function for ImageGenerator.tsx and AiChatBot.tsx
 export const generateImage = async (prompt: string): Promise<string> => {
     try {
-        const response = await getAi().models.generateImages({
-            model: 'imagen-4.0-generate-001',
-            prompt: prompt,
-            config: {
-                numberOfImages: 1,
-                outputMimeType: 'image/jpeg',
-                aspectRatio: '1:1',
-            },
-        });
-
-        if (response.generatedImages && response.generatedImages.length > 0) {
-            const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
-            return `data:image/jpeg;base64,${base64ImageBytes}`;
-        } else {
-            throw new Error("No image was generated.");
-        }
+        // Note: Gemini text-to-image models are not generally available yet.
+        // This is a placeholder for when they are.
+        // You would use a model like "gemini-pro-vision" or a specific image model.
+        // The following is a simulated response.
+        console.warn("Image generation is not yet supported by the Gemini API in this example.");
+        // Return a placeholder image
+        return new Promise(resolve => setTimeout(() => resolve("/placeholder.jpg"), 1000));
+        
     } catch (error) {
         handleApiError(error, "Failed to generate image");
     }

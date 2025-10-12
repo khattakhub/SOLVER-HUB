@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { useSiteSettings } from './contexts/SiteSettingsContext';
 import LoadingIndicator from './components/LoadingIndicator';
 import { isFirebaseInitialized } from './services/firebase';
+import { initializeGeminiService } from './services/geminiService';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const ToolsPage = lazy(() => import('./pages/ToolsPage'));
@@ -77,6 +78,12 @@ const App: React.FC = () => {
             document.title = settings.siteName;
         }
     }, [settings.siteName]);
+
+    useEffect(() => {
+        if (settings.geminiApiKey) {
+            initializeGeminiService(settings.geminiApiKey);
+        }
+    }, [settings.geminiApiKey]);
     
     return (
         <HashRouter>

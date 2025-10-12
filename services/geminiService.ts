@@ -1,37 +1,41 @@
 
-import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Chat, StartChatParams, GenerateContentRequest } from "@google/genai";
 
 let ai: GoogleGenAI | null = null;
 
-// This function initializes the GoogleGenAI instance on first use,
-// preventing the app from crashing on load if the API key is not set.
+/**
+ * Initializes the GoogleGenAI service with the API key from site settings.
+ */
+export const initializeGeminiService = (apiKey: string): void => {
+    if (apiKey && apiKey.trim().length > 0) {
+        try {
+            ai = new GoogleGenAI({ apiKey });
+        } catch (error) {
+            console.error("Failed to initialize Gemini AI Service:", error);
+            ai = null;
+        }
+    } else {
+        ai = null;
+    }
+};
+
+/**
+ * Safely gets the initialized AI instance.
+ */
 const getAi = (): GoogleGenAI => {
     if (!ai) {
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-        // Per @google/genai guidelines, API key must be sourced from environment variables.
-        if (!apiKey) {
-            console.error("Gemini API key is not set in environment variables. AI features will be disabled.");
-            throw new Error("Gemini API Key not found. Please set the VITE_GEMINI_API_KEY environment variable in your .env file.");
-        }
-        ai = new GoogleGenAI({ apiKey });
+        throw new Error("Gemini API Key not found. Please set it in the admin settings page.");
     }
     return ai;
 };
 
-
 /**
- * @deprecated This function is no longer needed as the Gemini service is now initialized automatically.
+ * A consistent error handler for all API calls.
  */
-export const initializeGeminiService = (apiKey: string): void => {
-    // This function is intentionally left empty.
-};
-
-
-// Helper function to handle API errors consistently.
 const handleApiError = (error: unknown, defaultMessage: string): never => {
     console.error(defaultMessage, error);
-    if (error instanceof Error && error.message.includes("API Key not found")) {
-        throw error;
+    if (error instanceof Error && error.message.includes("API Key")) {
+        throw new Error("The provided Gemini API Key is invalid or has exceeded its quota. Please check the key in the admin settings.");
     }
     throw new Error(`${defaultMessage}. Please try again.`);
 };
@@ -40,11 +44,11 @@ const handleApiError = (error: unknown, defaultMessage: string): never => {
 export const summarizeText = async (text: string): Promise<string> => {
     try {
         const prompt = `Summarize the following text into a few concise bullet points:\n\n${text}`;
-        const genAI = getAi();
-        const model = genAI.getGenerativeModel({ model: "gemini-pro"});
-        const result = await model.generateContent(prompt);
-        const response = result.response;
-        return response.text();
+        const response: GenerateContentResponse = await getAi().models.generateContent({
+            model: 'gemini-1.0-pro',
+            contents: [{ parts: [{ text: prompt }] }],
+        });
+        return response.text;
     } catch (error) {
         handleApiError(error, "Failed to summarize text");
     }
@@ -52,12 +56,12 @@ export const summarizeText = async (text: string): Promise<string> => {
 
 export const checkGrammar = async (text: string): Promise<string> => {
     try {
-        const prompt = `Correct any grammar and spelling mistakes in the following text. Return only the corrected text without any introductory phrases:\n\n"${text}"`;
-        const genAI = getAi();
-        const model = genAI.getGenerativeModel({ model: "gemini-pro"});
-        const result = await model.generateContent(prompt);
-        const response = result.response;
-        return response.text();
+        const prompt = `Correct any grammar and spelling mistakes in the following text. Return only the corrected text without any introductory phrases:\n\n\"${text}\"`;
+        const response: GenerateContentResponse = await getAi().models.generateContent({
+            model: 'gemini-1.0-pro',
+            contents: [{ parts: [{ text: prompt }] }],
+        });
+        return response.text;
     } catch (error) {
         handleApiError(error, "Failed to check grammar");
     }
@@ -65,19 +69,14 @@ export const checkGrammar = async (text: string): Promise<string> => {
 
 export const getTextFromImage = async (base64Image: string, mimeType: string): Promise<string> => {
     try {
-        const imagePart = {
-            inlineData: {
-                data: base64Image,
-                mimeType,
-            },
-        };
+        const imagePart = { inlineData: { data: base64Image, mimeType } };
         const textPart = { text: "Extract all text from this image. If there is no text, say so." };
-
-        const genAI = getAi();
-        const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
-        const result = await model.generateContent([textPart, imagePart]);
-        const response = result.response;
-        return response.text();
+        
+        const response: GenerateContentResponse = await getAi().models.generateContent({
+            model: 'gemini-pro-vision',
+            contents: { parts: [imagePart, textPart] },
+        });
+        return response.text;
     } catch (error) {
         handleApiError(error, "Failed to extract text from image");
     }
@@ -86,11 +85,11 @@ export const getTextFromImage = async (base64Image: string, mimeType: string): P
 export const getCurrencyConversion = async (amount: number, from: string, to: string): Promise<string> => {
     try {
         const prompt = `Convert ${amount} ${from} to ${to}. Provide only the final converted numeric value, without currency symbols or any extra text.`;
-        const genAI = getAi();
-        const model = genAI.getGenerativeModel({ model: "gemini-pro"});
-        const result = await model.generateContent(prompt);
-        const response = result.response;
-        const numericResult = parseFloat(response.text().replace(/,/g, ''));
+        const response: GenerateContentResponse = await getAi().models.generateContent({
+            model: 'gemini-1.0-pro',
+            contents: [{ parts: [{ text: prompt }] }],
+        });
+        const numericResult = parseFloat(response.text.replace(/,/g, ''));
         if (isNaN(numericResult)) {
             throw new Error("AI returned a non-numeric value.");
         }
@@ -102,9 +101,9 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
 
 export const createChat = (): Chat => {
     try {
-        const genAI = getAi();
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-        const chat = model.startChat();
+        const chat: Chat = getAi().chats.create({
+            model: 'gemini-1.0-pro',
+        });
         return chat;
     } catch (error) {
         handleApiError(error, "Failed to create chat session");
@@ -113,14 +112,8 @@ export const createChat = (): Chat => {
 
 export const generateImage = async (prompt: string): Promise<string> => {
     try {
-        // Note: Gemini text-to-image models are not generally available yet.
-        // This is a placeholder for when they are.
-        // You would use a model like "gemini-pro-vision" or a specific image model.
-        // The following is a simulated response.
-        console.warn("Image generation is not yet supported by the Gemini API in this example.");
-        // Return a placeholder image
+        console.warn("Image generation is not yet supported by this version of the Gemini API.");
         return new Promise(resolve => setTimeout(() => resolve("/placeholder.jpg"), 1000));
-        
     } catch (error) {
         handleApiError(error, "Failed to generate image");
     }

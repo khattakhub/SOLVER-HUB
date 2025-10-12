@@ -9,6 +9,7 @@ interface SocialLinks {
 }
 
 interface SiteSettings {
+    geminiApiKey: string;
     siteName: string;
     primaryColor: string;
     primaryColorDark: string;
@@ -31,6 +32,7 @@ interface SiteSettingsContextType {
 const SETTINGS_DOC_ID = 'globalSettings';
 
 const defaultSettings: SiteSettings = {
+    geminiApiKey: '',
     siteName: 'SolverHub',
     primaryColor: '#0284c7',
     primaryColorDark: '#0369a1',

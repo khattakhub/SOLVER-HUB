@@ -1,7 +1,11 @@
 
+
+
+
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { db } from '../services/firebase';
-import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+// FIX: The project appears to be using Firebase v8 SDK.
+// The imports have been changed from modular (v9+) to the v8 compatible syntax.
 import { initializeGeminiService } from '../services/geminiService';
 
 interface SocialLinks {
@@ -23,7 +27,6 @@ interface SiteSettings {
     socialLinks: SocialLinks;
     privacyPolicy: string;
     termsOfService: string;
-    geminiApiKey: string;
 }
 
 interface SiteSettingsContextType {
@@ -80,7 +83,6 @@ SolverHub has not reviewed all of the sites linked to its website and is not res
 
 SolverHub may revise these terms of service for its website at any time without notice. By using this website you are agreeing to be bound by the then current version of these terms of service.
     `.trim(),
-    geminiApiKey: '',
 };
 
 
@@ -95,17 +97,22 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
     }, [settings.primaryColor, settings.primaryColorDark]);
 
     useEffect(() => {
+        // FIX: Initialize Gemini service. The function is now a no-op but is kept for compatibility.
+        // The API key is now handled via environment variables inside the service itself.
+        initializeGeminiService('');
+        
         if (!db) {
             console.warn("Firestore is not available. Using default site settings.");
-            initializeGeminiService(''); // Disable AI features if no DB
             return;
         }
 
-        const settingsRef = doc(db, 'settings', SETTINGS_DOC_ID);
+        // FIX: Switched from v9 `doc(...)` to v8 `db.collection(...).doc(...)`
+        const settingsRef = db.collection('settings').doc(SETTINGS_DOC_ID);
 
-        const unsubscribe = onSnapshot(settingsRef, docSnap => {
+        // FIX: Switched from v9 `onSnapshot(ref, ...)` to v8 `ref.onSnapshot(...)`
+        const unsubscribe = settingsRef.onSnapshot((docSnap: any) => {
             let settingsData = defaultSettings;
-            if (docSnap.exists()) {
+            if (docSnap.exists) {
                 const data = docSnap.data() as Partial<SiteSettings>;
                 // Merge fetched data with defaults to ensure all properties exist
                 settingsData = {
@@ -118,16 +125,15 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
                 };
             } else {
                 // If settings don't exist in Firestore, create them with defaults
-                setDoc(settingsRef, defaultSettings).catch(err => {
+                // FIX: Switched from v9 `setDoc(ref, ...)` to v8 `ref.set(...)`
+                settingsRef.set(defaultSettings).catch((err: any) => {
                     console.error("Error initializing settings in Firestore:", err);
                 });
             }
             setSettings(settingsData);
-            initializeGeminiService(settingsData.geminiApiKey);
-        }, err => {
+        }, (err: any) => {
             console.error("Error fetching site settings:", err);
             setSettings(defaultSettings);
-            initializeGeminiService(''); // Disable AI features on error
         });
 
         return () => unsubscribe();
@@ -143,7 +149,8 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
         
         try {
             // Use updateDoc to avoid overwriting fields that are not in newSettings
-            await updateDoc(doc(db, 'settings', SETTINGS_DOC_ID), newSettings);
+            // FIX: Switched from v9 `updateDoc(doc(...))` to v8 `db.collection(...).doc(...).update(...)`
+            await db.collection('settings').doc(SETTINGS_DOC_ID).update(newSettings);
         } catch (error) {
             console.error("Could not save site settings to Firestore", error);
         }

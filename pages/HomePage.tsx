@@ -4,7 +4,8 @@ import { TOOLS } from '../constants';
 import ToolCard from '../components/ToolCard';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
 import { db } from '../services/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+// FIX: The project appears to be using Firebase v8 SDK.
+// The imports have been changed from modular (v9+) to the v8 compatible syntax.
 
 const HomePage: React.FC = () => {
     const featuredTools = TOOLS.filter(tool => tool.isFeatured);
@@ -89,7 +90,8 @@ const HomePage: React.FC = () => {
                     message,
                     date: new Date().toISOString(),
                 };
-                await addDoc(collection(db, 'messages'), newMessage);
+                // FIX: Switched from v9 `addDoc(collection(...))` to v8 `db.collection(...).add(...)`
+                await db.collection('messages').add(newMessage);
 
                 setSubmitStatus({ type: 'success', text: 'Your message has been sent successfully!' });
                 setName('');

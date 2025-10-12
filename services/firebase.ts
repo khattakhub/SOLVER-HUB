@@ -1,7 +1,9 @@
-import { initializeApp, getApp, getApps } from "firebase/app";
-import { getAnalytics, isSupported } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+// FIX: The project appears to be using Firebase v8 SDK with a v9+ package.
+// The imports have been changed to use the v8 compatibility layer.
+import firebase from "firebase/compat/app";
+import "firebase/compat/analytics";
+import "firebase/compat/auth";
+import "firebase/compat/firestore";
 
 // Your web app's Firebase configuration is now loaded from environment variables
 const firebaseConfig = {
@@ -24,13 +26,13 @@ let db;
 if (firebaseConfig.apiKey && firebaseConfig.projectId) {
   try {
     // Check if app is already initialized to avoid errors during hot-reloading
-    app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
+    app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.firestore();
     // Initialize Analytics only if supported by the browser
-    isSupported().then(supported => {
+    firebase.analytics.isSupported().then(supported => {
         if (supported) {
-            analytics = getAnalytics(app);
+            analytics = firebase.analytics();
         }
     });
   } catch (error)

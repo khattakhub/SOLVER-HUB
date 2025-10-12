@@ -1,50 +1,31 @@
+
 import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
 
-let aiInstance: GoogleGenAI | null = null;
-let apiKeyError: string | null = "AI features are disabled. Please configure the Gemini API Key in the admin settings panel.";
+// FIX: Per @google/genai guidelines, API key must be sourced from environment variables.
+// The previous dynamic key implementation has been removed and the service is initialized once here.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
 
 /**
- * Initializes the GoogleGenAI instance. This function is called from the SiteSettingsContext
- * once the API key has been fetched from Firestore.
- * @param apiKey The Google Gemini API key.
+ * @deprecated This function is no longer needed as the Gemini service is now initialized automatically using environment variables. It is kept for backwards compatibility to prevent crashes from existing calls, but it does nothing.
  */
 export const initializeGeminiService = (apiKey: string): void => {
-    if (!apiKey || !apiKey.trim()) {
-        aiInstance = null;
-        apiKeyError = "AI features are disabled. Please configure the Gemini API Key in the admin settings panel.";
-        return;
-    }
-
-    try {
-        aiInstance = new GoogleGenAI({ apiKey });
-        apiKeyError = null; // Success! Clear any previous errors.
-    } catch (error) {
-        console.error("Error initializing GoogleGenAI:", error);
-        aiInstance = null;
-        apiKeyError = "Failed to initialize Gemini service. The API Key might be invalid.";
+    // This function is intentionally left empty. The Gemini service is initialized above using environment variables.
+    if (!process.env.API_KEY) {
+        console.warn("Gemini API key is not set in environment variables. AI features will be disabled.");
     }
 };
 
-
-// Returns the AI instance or null if not available. Does not throw.
-const getAi = (): GoogleGenAI | null => {
-    return aiInstance;
-};
 
 // Helper function to handle API errors consistently.
 const handleApiError = (error: unknown, defaultMessage: string): never => {
     console.error(defaultMessage, error);
-    // The specific API key error is handled before this function is called.
     // For other errors, we throw a more generic message.
     throw new Error(`${defaultMessage}. Please try again.`);
 };
 
 
 export const summarizeText = async (text: string): Promise<string> => {
-    const ai = getAi();
-    if (!ai) {
-        throw new Error(apiKeyError as string);
-    }
     try {
         const prompt = `Summarize the following text into a few concise bullet points:\n\n${text}`;
         const response: GenerateContentResponse = await ai.models.generateContent({
@@ -58,10 +39,6 @@ export const summarizeText = async (text: string): Promise<string> => {
 };
 
 export const checkGrammar = async (text: string): Promise<string> => {
-    const ai = getAi();
-    if (!ai) {
-        throw new Error(apiKeyError as string);
-    }
     try {
         const prompt = `Correct any grammar and spelling mistakes in the following text. Return only the corrected text without any introductory phrases:\n\n"${text}"`;
         const response: GenerateContentResponse = await ai.models.generateContent({
@@ -75,10 +52,6 @@ export const checkGrammar = async (text: string): Promise<string> => {
 };
 
 export const getTextFromImage = async (base64Image: string, mimeType: string): Promise<string> => {
-    const ai = getAi();
-    if (!ai) {
-        throw new Error(apiKeyError as string);
-    }
     try {
         const imagePart = {
             inlineData: {
@@ -99,10 +72,6 @@ export const getTextFromImage = async (base64Image: string, mimeType: string): P
 };
 
 export const getCurrencyConversion = async (amount: number, from: string, to: string): Promise<string> => {
-    const ai = getAi();
-    if (!ai) {
-        throw new Error(apiKeyError as string);
-    }
     try {
         const prompt = `Convert ${amount} ${from} to ${to}. Provide only the final converted numeric value, without currency symbols or any extra text.`;
         const response: GenerateContentResponse = await ai.models.generateContent({
@@ -119,11 +88,8 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
     }
 };
 
+// FIX: Added missing createChat function for AiChatBot.tsx
 export const createChat = (): Chat => {
-    const ai = getAi();
-    if (!ai) {
-        throw new Error(apiKeyError as string);
-    }
     try {
         const chat: Chat = ai.chats.create({
             model: 'gemini-2.5-flash',
@@ -134,24 +100,25 @@ export const createChat = (): Chat => {
     }
 };
 
+// FIX: Added missing generateImage function for ImageGenerator.tsx and AiChatBot.tsx
 export const generateImage = async (prompt: string): Promise<string> => {
-    const ai = getAi();
-    if (!ai) {
-        throw new Error(apiKeyError as string);
-    }
     try {
         const response = await ai.models.generateImages({
             model: 'imagen-4.0-generate-001',
             prompt: prompt,
             config: {
-              numberOfImages: 1,
-              outputMimeType: 'image/png',
+                numberOfImages: 1,
+                outputMimeType: 'image/jpeg',
+                aspectRatio: '1:1',
             },
         });
 
-        const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
-        const imageUrl = `data:image/png;base64,${base64ImageBytes}`;
-        return imageUrl;
+        if (response.generatedImages && response.generatedImages.length > 0) {
+            const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
+            return `data:image/jpeg;base64,${base64ImageBytes}`;
+        } else {
+            throw new Error("No image was generated.");
+        }
     } catch (error) {
         handleApiError(error, "Failed to generate image");
     }

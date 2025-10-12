@@ -1,8 +1,11 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../services/firebase';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+// FIX: The project appears to be using Firebase v8 SDK.
+// The imports have been changed from modular (v9+) to the v8 compatible syntax.
 import { Tool, Suggestion, ContactMessage, ToolCategory } from '../types';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import EditToolModal from '../components/EditToolModal';
@@ -51,20 +54,24 @@ const AdminPage: React.FC = () => {
     useEffect(() => {
         if (!db) return;
 
-        const suggestionsQuery = query(collection(db, 'suggestions'), orderBy('date', 'desc'));
-        const unsubscribeSuggestions = onSnapshot(suggestionsQuery, snapshot => {
-            const loadedSuggestions: Suggestion[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Suggestion));
+        // FIX: Switched from v9 `query(collection(...), orderBy(...))` to v8 `db.collection(...).orderBy(...)`
+        const suggestionsQuery = db.collection('suggestions').orderBy('date', 'desc');
+        // FIX: Switched from v9 `onSnapshot(query, ...)` to v8 `query.onSnapshot(...)`
+        const unsubscribeSuggestions = suggestionsQuery.onSnapshot((snapshot: any) => {
+            const loadedSuggestions: Suggestion[] = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Suggestion));
             setSuggestions(loadedSuggestions);
-        }, error => {
+        }, (error: any) => {
             console.error("Error fetching suggestions:", error);
             showNotification("Error loading suggestions.");
         });
 
-        const messagesQuery = query(collection(db, 'messages'), orderBy('date', 'desc'));
-        const unsubscribeMessages = onSnapshot(messagesQuery, snapshot => {
-            const loadedMessages: ContactMessage[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContactMessage));
+        // FIX: Switched from v9 `query(collection(...), orderBy(...))` to v8 `db.collection(...).orderBy(...)`
+        const messagesQuery = db.collection('messages').orderBy('date', 'desc');
+        // FIX: Switched from v9 `onSnapshot(query, ...)` to v8 `query.onSnapshot(...)`
+        const unsubscribeMessages = messagesQuery.onSnapshot((snapshot: any) => {
+            const loadedMessages: ContactMessage[] = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as ContactMessage));
             setMessages(loadedMessages);
-        }, error => {
+        }, (error: any) => {
             console.error("Error fetching messages:", error);
             showNotification("Error loading messages.");
         });
@@ -72,15 +79,15 @@ const AdminPage: React.FC = () => {
         // Note: For a production app, tool definitions (components, icons) would likely
         // be stored separately from the editable data in Firestore. Here, we merge them.
         const staticToolMap = new Map(staticTools.map(t => [t.id, t]));
-        const toolsCollection = collection(db, 'tools');
-        const unsubscribeTools = onSnapshot(toolsCollection, snapshot => {
-            const dbTools: Partial<Tool>[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const toolsCollection = db.collection('tools');
+        const unsubscribeTools = toolsCollection.onSnapshot((snapshot: any) => {
+            const dbTools: Partial<Tool>[] = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
             const mergedTools = dbTools.map(dbTool => {
                 const staticData = staticToolMap.get(dbTool.id!);
                 return { ...staticData, ...dbTool } as Tool;
             });
             setTools(mergedTools);
-        }, error => {
+        }, (error: any) => {
             console.error("Error fetching tools:", error);
             showNotification("Error loading tools.");
         });
@@ -121,7 +128,8 @@ const AdminPage: React.FC = () => {
         delete (toolData as any).icon;
         
         try {
-            await updateDoc(doc(db, 'tools', id), toolData);
+            // FIX: Switched from v9 `updateDoc(doc(...))` to v8 `db.collection(...).doc(...).update(...)`
+            await db.collection('tools').doc(id).update(toolData);
             showNotification(`Tool "${updatedTool.name}" updated successfully!`);
         } catch (error) {
             console.error("Error updating tool: ", error);
@@ -135,7 +143,8 @@ const AdminPage: React.FC = () => {
     const handleConfirmDelete = async () => {
         if (selectedTool && db) {
             try {
-                await deleteDoc(doc(db, 'tools', selectedTool.id));
+                // FIX: Switched from v9 `deleteDoc(doc(...))` to v8 `db.collection(...).doc(...).delete()`
+                await db.collection('tools').doc(selectedTool.id).delete();
                 showNotification(`Tool "${selectedTool.name}" deleted successfully.`);
             } catch (error) {
                 console.error("Error deleting tool: ", error);
@@ -182,7 +191,8 @@ const AdminPage: React.FC = () => {
     const handleConfirmDeleteSuggestion = async () => {
         if (suggestionToDelete && suggestionToDelete.id && db) {
             try {
-                await deleteDoc(doc(db, 'suggestions', suggestionToDelete.id));
+                // FIX: Switched from v9 `deleteDoc(doc(...))` to v8 `db.collection(...).doc(...).delete()`
+                await db.collection('suggestions').doc(suggestionToDelete.id).delete();
                 showNotification(`Suggestion deleted successfully.`);
             } catch (error) {
                 console.error("Error deleting suggestion:", error);
@@ -201,7 +211,8 @@ const AdminPage: React.FC = () => {
     const handleConfirmDeleteMessage = async () => {
         if (messageToDelete && messageToDelete.id && db) {
             try {
-                await deleteDoc(doc(db, 'messages', messageToDelete.id));
+                // FIX: Switched from v9 `deleteDoc(doc(...))` to v8 `db.collection(...).doc(...).delete()`
+                await db.collection('messages').doc(messageToDelete.id).delete();
                 showNotification(`Message from ${messageToDelete.name} deleted successfully.`);
             } catch (error) {
                 console.error("Error deleting message:", error);
@@ -392,37 +403,7 @@ const AdminPage: React.FC = () => {
                                     </div>
                                 </fieldset>
 
-                                <fieldset>
-                                    <legend className="text-2xl font-bold text-dark dark:text-light mb-4">API Keys</legend>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label htmlFor="geminiApiKey" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Google Gemini API Key</label>
-                                            <div className="mt-1 relative rounded-md shadow-sm">
-                                                <input
-                                                    type={showApiKey ? 'text' : 'password'}
-                                                    name="geminiApiKey"
-                                                    id="geminiApiKey"
-                                                    value={siteSettings.geminiApiKey || ''}
-                                                    onChange={handleSettingsChange}
-                                                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-900 dark:border-slate-600 dark:text-light"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowApiKey(!showApiKey)}
-                                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
-                                                    aria-label="Toggle API key visibility"
-                                                >
-                                                    {showApiKey ? 
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> :
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><path d="m2 2 20 20"/></svg>
-                                                    }
-                                                </button>
-                                            </div>
-                                            <p className="text-xs text-gray-500 mt-1">This key is required for all AI-powered features to work.</p>
-                                        </div>
-                                    </div>
-                                </fieldset>
-
+                                {/* FIX: Removed API Key section as it's now handled by environment variables per Gemini API guidelines. */}
                                 <fieldset>
                                     <legend className="text-2xl font-bold text-dark dark:text-light mb-4">Appearance</legend>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

@@ -1,6 +1,10 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { auth } from '../services/firebase';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User as FirebaseUser, updatePassword } from 'firebase/auth';
+// FIX: The project appears to be using Firebase v8 SDK with a v9+ package.
+// The imports have been changed to use the v8 compatibility layer to resolve types.
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+
 
 interface User {
     uid: string;
@@ -27,7 +31,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setLoading(false);
             return;
         }
-        const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+        // FIX: Switched from v9 `onAuthStateChanged(auth, ...)` to v8 `auth.onAuthStateChanged(...)` and updated User type.
+        const unsubscribe = auth.onAuthStateChanged((firebaseUser: firebase.User | null) => {
             if (firebaseUser) {
                 setUser({ uid: firebaseUser.uid, email: firebaseUser.email });
             } else {
@@ -46,7 +51,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const login = async (email: string, password: string): Promise<boolean> => {
         if (!auth) return false;
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            // FIX: Switched from v9 `signInWithEmailAndPassword(auth, ...)` to v8 `auth.signInWithEmailAndPassword(...)`
+            await auth.signInWithEmailAndPassword(email, password);
             return true;
         } catch (error) {
             console.error("Firebase login error:", error);
@@ -57,7 +63,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const logout = async (): Promise<void> => {
         if (!auth) return;
         try {
-            await signOut(auth);
+            // FIX: Switched from v9 `signOut(auth)` to v8 `auth.signOut()`
+            await auth.signOut();
         } catch (error) {
             console.error("Firebase logout error:", error);
         }
@@ -68,7 +75,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return { success: false, error: 'No user is logged in.' };
         }
         try {
-            await updatePassword(auth.currentUser, newPassword);
+            // FIX: Switched from v9 `updatePassword(auth.currentUser, ...)` to v8 `auth.currentUser.updatePassword(...)`
+            await auth.currentUser.updatePassword(newPassword);
             return { success: true };
         } catch (error: any) {
             console.error("Firebase change password error:", error);

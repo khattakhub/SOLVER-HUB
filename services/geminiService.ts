@@ -1,19 +1,32 @@
 
-import { GoogleGenAI, GenerateContentResponse, Chat, StartChatParams, GenerateContentRequest } from "@google/genai";
+import type { GoogleGenAI, GenerateContentResponse, Chat, Content } from "@google/genai";
 
+// Store the dynamically imported module in a variable
+let genAiModule: typeof import('@google/genai') | null = null;
 let ai: GoogleGenAI | null = null;
+
+/**
+ * Dynamically loads the GoogleGenAI module and initializes the service.
+ */
+const loadAndInitialize = async (apiKey: string) => {
+    try {
+        if (!genAiModule) {
+            genAiModule = await import('@google/genai');
+        }
+        ai = new genAiModule.GoogleGenAI({ apiKey });
+    } catch (error) {
+        console.error("Failed to load or initialize Gemini AI Service:", error);
+        ai = null;
+        genAiModule = null; // Reset on failure
+    }
+};
 
 /**
  * Initializes the GoogleGenAI service with the API key from site settings.
  */
-export const initializeGeminiService = (apiKey: string): void => {
+export const initializeGeminiService = async (apiKey: string): Promise<void> => {
     if (apiKey && apiKey.trim().length > 0) {
-        try {
-            ai = new GoogleGenAI({ apiKey });
-        } catch (error) {
-            console.error("Failed to initialize Gemini AI Service:", error);
-            ai = null;
-        }
+        await loadAndInitialize(apiKey);
     } else {
         ai = null;
     }
@@ -24,7 +37,7 @@ export const initializeGeminiService = (apiKey: string): void => {
  */
 const getAi = (): GoogleGenAI => {
     if (!ai) {
-        throw new Error("Gemini API Key not found. Please set it in the admin settings page.");
+        throw new Error("Gemini API Key not found or not initialized. Please set it in the admin settings page.");
     }
     return ai;
 };
@@ -40,15 +53,15 @@ const handleApiError = (error: unknown, defaultMessage: string): never => {
     throw new Error(`${defaultMessage}. Please try again.`);
 };
 
+// --- API Functions remain largely the same, but now rely on the async-loaded 'ai' instance ---
 
 export const summarizeText = async (text: string): Promise<string> => {
     try {
+        const model = getAi().getGenerativeModel({ model: "gemini-pro" });
         const prompt = `Summarize the following text into a few concise bullet points:\n\n${text}`;
-        const response: GenerateContentResponse = await getAi().models.generateContent({
-            model: 'gemini-1.0-pro',
-            contents: [{ parts: [{ text: prompt }] }],
-        });
-        return response.text;
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        return response.text();
     } catch (error) {
         handleApiError(error, "Failed to summarize text");
     }
@@ -56,12 +69,11 @@ export const summarizeText = async (text: string): Promise<string> => {
 
 export const checkGrammar = async (text: string): Promise<string> => {
     try {
+        const model = getAi().getGenerativeModel({ model: "gemini-pro" });
         const prompt = `Correct any grammar and spelling mistakes in the following text. Return only the corrected text without any introductory phrases:\n\n\"${text}\"`;
-        const response: GenerateContentResponse = await getAi().models.generateContent({
-            model: 'gemini-1.0-pro',
-            contents: [{ parts: [{ text: prompt }] }],
-        });
-        return response.text;
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        return response.text();
     } catch (error) {
         handleApiError(error, "Failed to check grammar");
     }
@@ -69,14 +81,12 @@ export const checkGrammar = async (text: string): Promise<string> => {
 
 export const getTextFromImage = async (base64Image: string, mimeType: string): Promise<string> => {
     try {
+        const model = getAi().getGenerativeModel({ model: "gemini-pro-vision" });
         const imagePart = { inlineData: { data: base64Image, mimeType } };
         const textPart = { text: "Extract all text from this image. If there is no text, say so." };
-        
-        const response: GenerateContentResponse = await getAi().models.generateContent({
-            model: 'gemini-pro-vision',
-            contents: { parts: [imagePart, textPart] },
-        });
-        return response.text;
+        const result = await model.generateContent([textPart, imagePart]);
+        const response = await result.response;
+        return response.text();
     } catch (error) {
         handleApiError(error, "Failed to extract text from image");
     }
@@ -84,12 +94,12 @@ export const getTextFromImage = async (base64Image: string, mimeType: string): P
 
 export const getCurrencyConversion = async (amount: number, from: string, to: string): Promise<string> => {
     try {
+        const model = getAi().getGenerativeModel({ model: "gemini-pro" });
         const prompt = `Convert ${amount} ${from} to ${to}. Provide only the final converted numeric value, without currency symbols or any extra text.`;
-        const response: GenerateContentResponse = await getAi().models.generateContent({
-            model: 'gemini-1.0-pro',
-            contents: [{ parts: [{ text: prompt }] }],
-        });
-        const numericResult = parseFloat(response.text.replace(/,/g, ''));
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        const numericResult = parseFloat(text.replace(/,/g, ''));
         if (isNaN(numericResult)) {
             throw new Error("AI returned a non-numeric value.");
         }
@@ -99,12 +109,10 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
     }
 };
 
-export const createChat = (): Chat => {
+export const createChat = (history?: Content[]): Chat => {
     try {
-        const chat: Chat = getAi().chats.create({
-            model: 'gemini-1.0-pro',
-        });
-        return chat;
+        const model = getAi().getGenerativeModel({ model: "gemini-pro" });
+        return model.startChat({ history });
     } catch (error) {
         handleApiError(error, "Failed to create chat session");
     }

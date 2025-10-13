@@ -37,7 +37,11 @@ const Header: React.FC = () => {
                            <ThemeToggle />
                         </div>
                         <div className="md:hidden ml-4">
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-primary">
+                            <button 
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                className="text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-primary"
+                                aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+                            >
                                 {isMenuOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
                             </button>
                         </div>

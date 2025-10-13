@@ -80,9 +80,14 @@ const App: React.FC = () => {
     }, [settings.siteName]);
 
     useEffect(() => {
-        if (settings.geminiApiKey) {
-            initializeGeminiService(settings.geminiApiKey);
-        }
+        const initGemini = async () => {
+            // Prioritize Vercel's environment variable, fallback to site settings
+            const apiKey = import.meta.env.VITE_GEMINI_API_KEY || settings.geminiApiKey;
+            if (apiKey) {
+                await initializeGeminiService(apiKey);
+            }
+        };
+        initGemini();
     }, [settings.geminiApiKey]);
     
     return (

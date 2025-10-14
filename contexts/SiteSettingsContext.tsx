@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { db } from '../services/firebase';
+import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 
 interface SocialLinks {
     twitter: string;
@@ -95,11 +96,11 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
             return;
         }
 
-        const settingsRef = db.collection('settings').doc(SETTINGS_DOC_ID);
+        const settingsRef = doc(db, 'settings', SETTINGS_DOC_ID);
 
-        const unsubscribe = settingsRef.onSnapshot(doc => {
-            if (doc.exists) {
-                const data = doc.data() as Partial<SiteSettings>;
+        const unsubscribe = onSnapshot(settingsRef, docSnap => {
+            if (docSnap.exists()) {
+                const data = docSnap.data() as Partial<SiteSettings>;
                  setSettings(prev => ({
                     ...prev,
                     ...data,
@@ -110,7 +111,7 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
                 }));
             } else {
                 // If settings don't exist in Firestore, create them with defaults
-                settingsRef.set(defaultSettings).catch(err => {
+                setDoc(settingsRef, defaultSettings).catch(err => {
                     console.error("Error initializing settings in Firestore:", err);
                 });
             }
@@ -130,7 +131,7 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
         }
         
         try {
-            await db.collection('settings').doc(SETTINGS_DOC_ID).update(newSettings);
+            await updateDoc(doc(db, 'settings', SETTINGS_DOC_ID), newSettings);
         } catch (error) {
             console.error("Could not save site settings to Firestore", error);
         }

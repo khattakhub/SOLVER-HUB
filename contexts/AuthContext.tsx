@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { auth } from '../services/firebase';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User as FirebaseUser } from 'firebase/auth';
 
 interface User {
     uid: string;
@@ -21,7 +22,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = auth?.onAuthStateChanged(firebaseUser => {
+        if (!auth) {
+            setLoading(false);
+            return;
+        };
+        
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
             if (firebaseUser) {
                 setUser({ uid: firebaseUser.uid, email: firebaseUser.email });
             } else {
@@ -40,7 +46,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const login = async (email: string, password: string): Promise<boolean> => {
         if (!auth) return false;
         try {
-            await auth.signInWithEmailAndPassword(email, password);
+            await signInWithEmailAndPassword(auth, email, password);
             return true;
         } catch (error) {
             console.error("Firebase login error:", error);
@@ -51,7 +57,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const logout = async (): Promise<void> => {
         if (!auth) return;
         try {
-            await auth.signOut();
+            await signOut(auth);
         } catch (error) {
             console.error("Firebase logout error:", error);
         }

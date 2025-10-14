@@ -1,9 +1,9 @@
-
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 
 // A singleton pattern for the AI instance to avoid re-initialization
 let aiInstance: GoogleGenAI | null = null;
 let isInitialized = false;
+let initializationError: string | null = null;
 
 const API_KEY_ERROR_MESSAGE = `AI features are disabled. The application requires a Google Gemini API Key to function. Please ensure the 'API_KEY' environment variable is set in your deployment environment.`;
 
@@ -19,6 +19,7 @@ const initializeAi = (): void => {
 
     if (!API_KEY) {
         console.error("API_KEY is not set in environment variables. AI features will be disabled.");
+        initializationError = API_KEY_ERROR_MESSAGE;
         return;
     }
 
@@ -27,6 +28,7 @@ const initializeAi = (): void => {
     } catch (error) {
         console.error("Error initializing GoogleGenAI:", error);
         aiInstance = null; // Ensure instance is null on error
+        initializationError = `Failed to initialize AI service. ${error instanceof Error ? error.message : 'Please check the API key and network connection.'}`;
     }
 };
 
@@ -36,6 +38,17 @@ const getAi = (): GoogleGenAI | null => {
         initializeAi();
     }
     return aiInstance;
+};
+
+/**
+ * Checks if the AI service is initialized and available.
+ * @returns An object with `isAvailable` (boolean) and `errorMessage` (string | null).
+ */
+export const checkAiServiceAvailability = (): { isAvailable: boolean; errorMessage: string | null } => {
+    if (!isInitialized) {
+        initializeAi();
+    }
+    return { isAvailable: !!aiInstance, errorMessage: initializationError };
 };
 
 const model = 'gemini-2.5-flash';
@@ -52,7 +65,7 @@ const handleApiError = (error: unknown, defaultMessage: string): never => {
 export const summarizeText = async (text: string): Promise<string> => {
     const ai = getAi();
     if (!ai) {
-        throw new Error(API_KEY_ERROR_MESSAGE);
+        throw new Error(initializationError || API_KEY_ERROR_MESSAGE);
     }
     try {
         const prompt = `Summarize the following text into a few concise bullet points:\n\n${text}`;
@@ -69,7 +82,7 @@ export const summarizeText = async (text: string): Promise<string> => {
 export const checkGrammar = async (text: string): Promise<string> => {
     const ai = getAi();
     if (!ai) {
-        throw new Error(API_KEY_ERROR_MESSAGE);
+        throw new Error(initializationError || API_KEY_ERROR_MESSAGE);
     }
     try {
         const prompt = `Correct any grammar and spelling mistakes in the following text. Return only the corrected text without any introductory phrases:\n\n"${text}"`;
@@ -86,7 +99,7 @@ export const checkGrammar = async (text: string): Promise<string> => {
 export const getTextFromImage = async (base64Image: string, mimeType: string): Promise<string> => {
     const ai = getAi();
     if (!ai) {
-        throw new Error(API_KEY_ERROR_MESSAGE);
+        throw new Error(initializationError || API_KEY_ERROR_MESSAGE);
     }
     try {
         const imagePart = {
@@ -110,7 +123,7 @@ export const getTextFromImage = async (base64Image: string, mimeType: string): P
 export const getCurrencyConversion = async (amount: number, from: string, to: string): Promise<string> => {
     const ai = getAi();
     if (!ai) {
-        throw new Error(API_KEY_ERROR_MESSAGE);
+        throw new Error(initializationError || API_KEY_ERROR_MESSAGE);
     }
     try {
         const prompt = `Convert ${amount} ${from} to ${to}. Provide only the final converted numeric value, without currency symbols or any extra text.`;
@@ -131,7 +144,7 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
 export const generateImage = async (prompt: string): Promise<string> => {
     const ai = getAi();
     if (!ai) {
-        throw new Error(API_KEY_ERROR_MESSAGE);
+        throw new Error(initializationError || API_KEY_ERROR_MESSAGE);
     }
     try {
         const response = await ai.models.generateImages({
@@ -152,7 +165,7 @@ export const generateImage = async (prompt: string): Promise<string> => {
 export const createChat = (): Chat => {
     const ai = getAi();
     if (!ai) {
-        throw new Error(API_KEY_ERROR_MESSAGE);
+        throw new Error(initializationError || API_KEY_ERROR_MESSAGE);
     }
     return ai.chats.create({
       model,

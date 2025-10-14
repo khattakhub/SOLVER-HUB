@@ -4,6 +4,7 @@ import App from './App';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { SiteSettingsProvider } from './contexts/SiteSettingsContext';
+import { ApiStatusProvider } from './contexts/ApiStatusContext';
 import './services/firebase';
 
 const rootElement = document.getElementById('root');
@@ -17,7 +18,9 @@ root.render(
     <ThemeProvider>
       <AuthProvider>
         <SiteSettingsProvider>
-          <App />
+          <ApiStatusProvider>
+            <App />
+          </ApiStatusProvider>
         </SiteSettingsProvider>
       </AuthProvider>
     </ThemeProvider>

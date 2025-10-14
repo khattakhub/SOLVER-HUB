@@ -1,19 +1,24 @@
-import React, { createContext, useContext, ReactNode } from 'react';
-
-// This context is part of a legacy global error handling system that has been disabled.
-// API key errors are now handled within each individual tool.
-// This file is kept to prevent import errors but should not be used.
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import { checkAiServiceAvailability } from '../services/geminiService';
 
 interface ApiStatusContextType {
+    isAiAvailable: boolean;
     apiKeyError: string | null;
 }
 
 const ApiStatusContext = createContext<ApiStatusContextType | undefined>(undefined);
 
 export const ApiStatusProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    // The value is hardcoded to null as this global error system is no longer in use.
+    const [status, setStatus] = useState<ApiStatusContextType>({ isAiAvailable: true, apiKeyError: null });
+
+    useEffect(() => {
+        // Check AI service status on initial load.
+        const { isAvailable, errorMessage } = checkAiServiceAvailability();
+        setStatus({ isAiAvailable: isAvailable, apiKeyError: errorMessage });
+    }, []);
+
     return (
-        <ApiStatusContext.Provider value={{ apiKeyError: null }}>
+        <ApiStatusContext.Provider value={status}>
             {children}
         </ApiStatusContext.Provider>
     );
@@ -22,8 +27,7 @@ export const ApiStatusProvider: React.FC<{ children: ReactNode }> = ({ children 
 export const useApiStatus = (): ApiStatusContextType => {
     const context = useContext(ApiStatusContext);
     if (!context) {
-        // This should not happen if the provider is used, but it's a safe fallback.
-        return { apiKeyError: null };
+        throw new Error('useApiStatus must be used within an ApiStatusProvider');
     }
     return context;
 };

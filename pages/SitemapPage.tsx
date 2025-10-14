@@ -7,8 +7,6 @@ const SitemapPage: React.FC = () => {
 
     useEffect(() => {
         const baseUrl = window.location.origin;
-        // Since it's a HashRouter, URLs are like `origin/#/path`
-        const sitemapBaseUrl = `${baseUrl}/#`;
 
         const mainPages = NAV_LINKS.map(link => link.path);
         const legalPages = ['/privacy-policy', '/terms-of-service'];
@@ -18,11 +16,10 @@ const SitemapPage: React.FC = () => {
         const allUrls = [...new Set([...mainPages, ...legalPages, ...toolPages])];
 
         const urlset = allUrls.map(url => {
-            // The root path in NAV_LINKS is '/', which needs to become an empty string for the hash URL.
-            const path = url === '/' ? '' : url;
+            const fullUrl = `${baseUrl}${url}`;
             const priority = url === '/' ? '1.0' : (url.startsWith('/tools/') ? '0.7' : '0.8');
             return `  <url>
-    <loc>${sitemapBaseUrl}${path}</loc>
+    <loc>${fullUrl}</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <priority>${priority}</priority>
   </url>`;

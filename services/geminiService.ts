@@ -15,7 +15,7 @@ const initializeAi = (): void => {
     }
     isInitialized = true;
 
-// FIX: Use process.env.API_KEY as per guidelines, which resolves the import.meta.env error.
+// FIX: Use `process.env.API_KEY` as per the coding guidelines.
 const API_KEY = import.meta.env.VITE_API_KEY;
 
     if (!API_KEY) {

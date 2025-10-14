@@ -1,7 +1,0 @@
-<!--
-  This static sitemap.xml file is not recommended for this application.
-  It is not automatically updated and uses an incorrect URL format for a single-page app with a hash router.
-  Please use the dynamic sitemap generator available at the "/sitemap" page on your website.
-  Copy the content from that page and create a sitemap.xml file in your public/root directory during deployment.
-  This file's content has been cleared to prevent issues. It is recommended to delete this file.
--->

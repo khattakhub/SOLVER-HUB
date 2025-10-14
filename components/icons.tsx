@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 export const SummarizeIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -58,6 +57,12 @@ export const PdfIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
+export const ChatIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+    </svg>
+);
+
 export const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
         <line x1="4" x2="20" y1="12" y2="12" />
@@ -73,10 +78,10 @@ export const XIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
-export const CodeIcon: React.FC<{ className?: string, leftChevronClass?: string, rightChevronClass?: string }> = ({ className, leftChevronClass, rightChevronClass }) => (
+export const CodeIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <polyline points="16 18 22 12 16 6" className={rightChevronClass} />
-        <polyline points="8 6 2 12 8 18" className={leftChevronClass} />
+        <polyline points="16 18 22 12 16 6" />
+        <polyline points="8 6 2 12 8 18" />
     </svg>
 );
 
@@ -100,22 +105,21 @@ export const MoonIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
-{/* FIX: Add missing ImageIcon for AiChatBot.tsx */}
 export const ImageIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-        <polyline points="21 15 16 10 5 21"></polyline>
+        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+        <circle cx="9" cy="9" r="2"></circle>
+        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
     </svg>
 );
 
-{/* FIX: Add missing BotIcon for AiChatBot.tsx */}
 export const BotIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
         <path d="M12 8V4H8" />
-        <rect x="4" y="12" width="16" height="8" rx="2" />
+        <rect width="16" height="12" x="4" y="8" rx="2" />
         <path d="M2 14h2" />
         <path d="M20 14h2" />
-        <path d="M15 13v-2a3 3 0 0 0-3-3H9M7 16v-2a3 3 0 0 1 3-3h3" />
+        <path d="M15 13v2" />
+        <path d="M9 13v2" />
     </svg>
 );

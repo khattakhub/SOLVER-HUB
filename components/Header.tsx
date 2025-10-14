@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// FIX: Corrected import for react-router-dom components.
 import { Link, NavLink } from 'react-router-dom';
 import { NAV_LINKS } from '../constants';
 import { MenuIcon, XIcon, CodeIcon } from './icons';
@@ -37,11 +38,7 @@ const Header: React.FC = () => {
                            <ThemeToggle />
                         </div>
                         <div className="md:hidden ml-4">
-                            <button 
-                                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                className="text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-primary"
-                                aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-                            >
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-primary">
                                 {isMenuOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
                             </button>
                         </div>

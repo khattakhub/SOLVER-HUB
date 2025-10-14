@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { db } from '../services/firebase';
-import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 
 interface SocialLinks {
     twitter: string;
@@ -9,7 +8,6 @@ interface SocialLinks {
 }
 
 interface SiteSettings {
-    geminiApiKey: string;
     siteName: string;
     primaryColor: string;
     primaryColorDark: string;
@@ -32,7 +30,6 @@ interface SiteSettingsContextType {
 const SETTINGS_DOC_ID = 'globalSettings';
 
 const defaultSettings: SiteSettings = {
-    geminiApiKey: '',
     siteName: 'SolverHub',
     primaryColor: '#0284c7',
     primaryColorDark: '#0369a1',
@@ -98,31 +95,27 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
             return;
         }
 
-        const settingsRef = doc(db, 'settings', SETTINGS_DOC_ID);
-        
-        const unsubscribe = onSnapshot(settingsRef, (docSnap) => {
-            let settingsData = defaultSettings;
-            if (docSnap.exists()) {
-                const data = docSnap.data() as Partial<SiteSettings>;
-                // Merge fetched data with defaults to ensure all properties exist
-                settingsData = {
-                    ...defaultSettings,
+        const settingsRef = db.collection('settings').doc(SETTINGS_DOC_ID);
+
+        const unsubscribe = settingsRef.onSnapshot(doc => {
+            if (doc.exists) {
+                const data = doc.data() as Partial<SiteSettings>;
+                 setSettings(prev => ({
+                    ...prev,
                     ...data,
                     socialLinks: {
-                        ...defaultSettings.socialLinks,
+                        ...prev.socialLinks,
                         ...(data.socialLinks || {})
                     }
-                };
+                }));
             } else {
                 // If settings don't exist in Firestore, create them with defaults
-                setDoc(settingsRef, defaultSettings).catch((err: any) => {
+                settingsRef.set(defaultSettings).catch(err => {
                     console.error("Error initializing settings in Firestore:", err);
                 });
             }
-            setSettings(settingsData);
-        }, (err: any) => {
+        }, err => {
             console.error("Error fetching site settings:", err);
-            setSettings(defaultSettings);
         });
 
         return () => unsubscribe();
@@ -137,8 +130,7 @@ export const SiteSettingsProvider: React.FC<{ children: ReactNode }> = ({ childr
         }
         
         try {
-            const settingsRef = doc(db, 'settings', SETTINGS_DOC_ID);
-            await updateDoc(settingsRef, newSettings);
+            await db.collection('settings').doc(SETTINGS_DOC_ID).update(newSettings);
         } catch (error) {
             console.error("Could not save site settings to Firestore", error);
         }

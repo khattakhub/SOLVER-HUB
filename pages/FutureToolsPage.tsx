@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Suggestion } from '../types';
 import { db } from '../services/firebase';
-import { collection, addDoc } from 'firebase/firestore';
-
 
 const futureTools = [
     { name: 'Video Summarizer', description: 'Get key points from long videos instantly.' },
@@ -32,13 +30,12 @@ const FutureToolsPage: React.FC = () => {
         setSubmitMessage(null);
 
         try {
-            const newSuggestion: Suggestion = {
+            const newSuggestion = {
                 idea,
                 description,
                 date: new Date().toISOString(),
             };
-            
-            await addDoc(collection(db, 'suggestions'), newSuggestion);
+            await db.collection('suggestions').add(newSuggestion);
 
             setSubmitMessage({ type: 'success', text: 'Thank you! Your suggestion has been submitted.' });
             setIdea('');

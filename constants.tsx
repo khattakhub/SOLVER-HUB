@@ -1,6 +1,8 @@
+
+
 import React, { lazy } from 'react';
 import { Tool, ToolCategory } from './types';
-import { SummarizeIcon, GrammarIcon, OcrIcon, UnitConvertIcon, CurrencyIcon, PdfIcon, BotIcon, ImageIcon } from './components/icons';
+import { SummarizeIcon, GrammarIcon, OcrIcon, UnitConvertIcon, CurrencyIcon, PdfIcon, ChatIcon, ImageIcon } from './components/icons';
 
 export const TOOLS: Tool[] = [
     {
@@ -31,22 +33,13 @@ export const TOOLS: Tool[] = [
         isFeatured: true,
     },
     {
-        id: 'ai-chat-bot',
-        name: 'AI Answer Bot',
-        description: 'Ask questions or generate images with a conversational AI.',
-        icon: <BotIcon className="w-8 h-8 text-primary" />,
-        category: ToolCategory.AI,
-        component: lazy(() => import('./tools/AiChatBot')),
-        isFeatured: true,
-    },
-    {
-        id: 'image-generator',
-        name: 'Image Generator',
+        id: 'ai-image-generator',
+        name: 'AI Image Generator',
         description: 'Create unique images from text descriptions using AI.',
         icon: <ImageIcon className="w-8 h-8 text-primary" />,
         category: ToolCategory.AI,
         component: lazy(() => import('./tools/ImageGenerator')),
-        isFeatured: true,
+        isFeatured: false,
     },
     {
         id: 'unit-converter',
@@ -73,6 +66,15 @@ export const TOOLS: Tool[] = [
         icon: <PdfIcon className="w-8 h-8 text-primary" />,
         category: ToolCategory.DOCUMENTS,
         component: lazy(() => import('./tools/PdfMerger')),
+        isFeatured: true,
+    },
+    {
+        id: 'ai-chat-bot',
+        name: 'AI Answer Bot',
+        description: 'Get instant answers and suggestions for any question.',
+        icon: <ChatIcon className="w-8 h-8 text-primary" />,
+        category: ToolCategory.AI,
+        component: lazy(() => import('./tools/AiChatBot')),
         isFeatured: true,
     },
 ];

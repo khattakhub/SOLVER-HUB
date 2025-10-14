@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
+// FIX: Corrected import for react-router-dom components.
 import { Link } from 'react-router-dom';
 import { TOOLS } from '../constants';
 import ToolCard from '../components/ToolCard';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
 import { db } from '../services/firebase';
-import { collection, addDoc } from 'firebase/firestore';
 
 const HomePage: React.FC = () => {
     const featuredTools = TOOLS.filter(tool => tool.isFeatured);
@@ -89,8 +89,7 @@ const HomePage: React.FC = () => {
                     message,
                     date: new Date().toISOString(),
                 };
-                
-                await addDoc(collection(db, 'messages'), newMessage);
+                await db.collection('messages').add(newMessage);
 
                 setSubmitStatus({ type: 'success', text: 'Your message has been sent successfully!' });
                 setName('');

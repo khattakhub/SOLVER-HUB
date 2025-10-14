@@ -16,18 +16,3 @@ export const fileToBase64 = (file: File): Promise<string> => {
         reader.onerror = (error) => reject(error);
     });
 };
-
-export const lazyLoadScript = (src: string): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    // Check if the script is already loaded
-    if (document.querySelector(`script[src="${src}"]`)) {
-      return resolve();
-    }
-    const script = document.createElement('script');
-    script.src = src;
-    script.async = true; // Load asynchronously
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-    document.head.appendChild(script);
-  });
-};

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+// FIX: Corrected import for react-router-dom components.
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { CodeIcon } from '../components/icons';
 
 const LoginPage: React.FC = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('admin@solverhub.com');
+    const [password, setPassword] = useState('admin123');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();

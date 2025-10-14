@@ -1,18 +1,18 @@
 // FIX: Switched to Firebase v9 compat libraries to resolve module resolution issues.
-import firebase from "firebase/compat/app";
+import firebase from "firebase/compa/app";
 import "firebase/compat/analytics";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
 
-// Your web app's Firebase configuration is now loaded from environment variables
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY,
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.VITE_FIREBASE_APP_ID,
-  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID
+  apiKey: "AIzaSyCnl9H7GXK_aIXiOyTxmMAEEfPcq_EH28s",
+  authDomain: "problem-solver-hub-by-shahzad.firebaseapp.com",
+  projectId: "problem-solver-hub-by-shahzad",
+  storageBucket: "problem-solver-hub-by-shahzad.appspot.com",
+  messagingSenderId: "163021811851",
+  appId: "1:163021811851:web:ace0b2f234ca2384a6e48e",
+  measurementId: "G-1DG8JKP6BP"
 };
 
 // Initialize Firebase only if the essential configuration is provided to prevent errors.

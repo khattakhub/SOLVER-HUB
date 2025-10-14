@@ -6,7 +6,6 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useSiteSettings } from './contexts/SiteSettingsContext';
 import { CodeIcon } from './components/icons';
-import ApiKeyErrorBanner from './components/ApiKeyErrorBanner';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const ToolsPage = lazy(() => import('./pages/ToolsPage'));
@@ -44,7 +43,6 @@ const App: React.FC = () => {
         <HashRouter>
             <div className="flex flex-col min-h-screen font-sans">
                 <Header />
-                <ApiKeyErrorBanner />
                 <main className="flex-grow">
                     <Suspense fallback={<LoadingSpinner />}>
                         <Routes>

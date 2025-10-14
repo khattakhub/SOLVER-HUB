@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 // FIX: Corrected import for react-router-dom components.
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -32,6 +32,7 @@ const LoadingSpinner: React.FC = () => (
 
 const App: React.FC = () => {
     const { settings } = useSiteSettings();
+    const location = useLocation();
 
     useEffect(() => {
         if (settings.siteName) {
@@ -40,34 +41,32 @@ const App: React.FC = () => {
     }, [settings.siteName]);
     
     return (
-        <HashRouter>
-            <div className="flex flex-col min-h-screen font-sans">
-                <Header />
-                <main className="flex-grow">
-                    <Suspense fallback={<LoadingSpinner />}>
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/tools" element={<ToolsPage />} />
-                            <Route path="/tools/:toolId" element={<ToolDetailPage />} />
-                            <Route path="/future" element={<FutureToolsPage />} />
-                            <Route path="/login" element={<LoginPage />} />
-                            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-                            <Route path="/sitemap" element={<SitemapPage />} />
-                            <Route 
-                                path="/admin" 
-                                element={
-                                    <ProtectedRoute>
-                                        <AdminPage />
-                                    </ProtectedRoute>
-                                } 
-                            />
-                        </Routes>
-                    </Suspense>
-                </main>
-                <Footer />
-            </div>
-        </HashRouter>
+        <div className="flex flex-col min-h-screen font-sans">
+            <Header />
+            <main className="flex-grow">
+                <Suspense fallback={<LoadingSpinner />}>
+                    <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/tools" element={<ToolsPage />} />
+                        <Route path="/tools/:toolId" element={<ToolDetailPage />} />
+                        <Route path="/future" element={<FutureToolsPage />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+                        <Route path="/sitemap" element={<SitemapPage />} />
+                        <Route 
+                            path="/admin" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminPage />
+                                </ProtectedRoute>
+                            } 
+                        />
+                    </Routes>
+                </Suspense>
+            </main>
+            {location.pathname === '/' && <Footer />}
+        </div>
     );
 };
 

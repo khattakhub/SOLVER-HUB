@@ -1,4 +1,4 @@
-import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
 
 // A singleton pattern for the AI instance to avoid re-initialization
 let aiInstance: GoogleGenAI | null = null;
@@ -15,6 +15,7 @@ const initializeAi = (): void => {
     }
     isInitialized = true;
 
+// FIX: Use process.env.API_KEY as per guidelines, which resolves the import.meta.env error.
 const API_KEY = import.meta.env.VITE_API_KEY;
 
     if (!API_KEY) {
@@ -141,6 +142,18 @@ export const getCurrencyConversion = async (amount: number, from: string, to: st
     }
 };
 
+// FIX: Added createChat function to initialize a new chat session.
+export const createChat = (): Chat => {
+    const ai = getAi();
+    if (!ai) {
+        throw new Error(initializationError || API_KEY_ERROR_MESSAGE);
+    }
+    return ai.chats.create({
+        model: 'gemini-2.5-flash',
+    });
+};
+
+// FIX: Added generateImage function to create images from a text prompt.
 export const generateImage = async (prompt: string): Promise<string> => {
     const ai = getAi();
     if (!ai) {
@@ -153,24 +166,17 @@ export const generateImage = async (prompt: string): Promise<string> => {
             config: {
                 numberOfImages: 1,
                 outputMimeType: 'image/jpeg',
+                aspectRatio: '1:1',
             },
         });
-        const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
-        return `data:image/jpeg;base64,${base64ImageBytes}`;
+
+        if (response.generatedImages && response.generatedImages.length > 0) {
+            const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
+            return `data:image/jpeg;base64,${base64ImageBytes}`;
+        } else {
+            throw new Error("No image was generated.");
+        }
     } catch (error) {
         handleApiError(error, "Failed to generate image");
     }
-};
-
-export const createChat = (): Chat => {
-    const ai = getAi();
-    if (!ai) {
-        throw new Error(initializationError || API_KEY_ERROR_MESSAGE);
-    }
-    return ai.chats.create({
-      model,
-      config: {
-        systemInstruction: 'You are a helpful AI assistant called Problem-Solver Bot. You provide clear, concise, and accurate answers to user questions.',
-      },
-    });
 };

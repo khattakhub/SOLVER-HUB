@@ -2,7 +2,7 @@
 <html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24' 24' fill='none' stroke='%230284c7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='16 18 22 12 16 6' /%3E%3Cpolyline points='8 6 2 12 8 18' /%3E%3C/svg%3E" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='64' height='64' rx='12' fill='url(%23grad)'/%3E%3Cpath d='M40 44L52 32L40 20' stroke='white' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M24 20L12 32L24 44' stroke='white' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0' y1='0' x2='64' y2='64' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%230284c7'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="google811f64fb90074ccf" />
     <meta name="google-site-verification" content="dds8lO0mtNZ7H4MRXeAC8lpv0STs53nHxjweIn501dw" />
@@ -35,6 +35,10 @@
       }
       .fade-in {
         animation: fadeIn 0.5s ease-out forwards;
+      }
+      @keyframes shine {
+        from { left: -50%; }
+        to { left: 150%; }
       }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">

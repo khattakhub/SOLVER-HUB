@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useSiteSettings } from './contexts/SiteSettingsContext';
+import { CodeIcon } from './components/icons';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const ToolsPage = lazy(() => import('./pages/ToolsPage'));
@@ -19,7 +20,13 @@ const SitemapPage = lazy(() => import('./pages/SitemapPage'));
 
 const LoadingSpinner: React.FC = () => (
     <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary dark:border-sky-400"></div>
+        <div className="relative w-24 h-24 overflow-hidden">
+            <CodeIcon className="w-24 h-24 text-primary" />
+            <div 
+                className="absolute top-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/50 to-transparent transform -skew-x-12"
+                style={{animation: 'shine 2s infinite linear'}}
+            />
+        </div>
     </div>
 );
 

@@ -9,7 +9,7 @@ const SitemapPage: React.FC = () => {
         const baseUrl = window.location.origin;
 
         const mainPages = NAV_LINKS.map(link => link.path);
-        const legalPages = ['/privacy-policy', '/terms-of-service'];
+        const legalPages = ['/privacy-policy', '/terms-of-service', '/about', '/contact', '/disclaimer'];
         const toolPages = TOOLS.map(tool => `/tools/${tool.id}`);
 
         // Use a Set to ensure unique URLs
@@ -18,17 +18,10 @@ const SitemapPage: React.FC = () => {
         const urlset = allUrls.map(url => {
             const fullUrl = `${baseUrl}${url}`;
             const priority = url === '/' ? '1.0' : (url.startsWith('/tools/') ? '0.7' : '0.8');
-            return `  <url>
-    <loc>${fullUrl}</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-    <priority>${priority}</priority>
-  </url>`;
+            return `  <url>\n    <loc>${fullUrl}</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>${priority}</priority>\n  </url>`;
         }).join('\n');
 
-        const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urlset}
-</urlset>`;
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlset}\n</urlset>`;
 
         setSitemapContent(xml.trim());
     }, []);

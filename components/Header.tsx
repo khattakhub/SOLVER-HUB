@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // FIX: Corrected import for react-router-dom components.
 import { Link, NavLink } from 'react-router-dom';
 import { NAV_LINKS } from '../constants';
@@ -9,6 +9,14 @@ import { useSiteSettings } from '../contexts/SiteSettingsContext';
 const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { settings } = useSiteSettings();
+
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5073136318802367";
+        script.crossOrigin = "anonymous";
+        script.async = true;
+        document.head.appendChild(script);
+    }, []);
 
     return (
         <header className="bg-white shadow-md sticky top-0 z-50 dark:bg-dark dark:border-b dark:border-slate-800 transition-colors duration-300">

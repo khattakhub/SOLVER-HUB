@@ -19,7 +19,10 @@ const Footer: React.FC = () => {
                     
                     <div className="text-sm text-gray-400 flex flex-col items-center space-y-2">
                          <p>&copy; {new Date().getFullYear()} {settings.siteName}. All rights reserved.</p>
-                         <div className="flex space-x-4">
+                         <div className="flex flex-wrap justify-center space-x-4">
+                            <Link to="/about" className="hover:text-primary transition-colors">About Us</Link>
+                            <Link to="/contact" className="hover:text-primary transition-colors">Contact Us</Link>
+                            <Link to="/disclaimer" className="hover:text-primary transition-colors">Disclaimer</Link>
                             <Link to="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
                             <Link to="/terms-of-service" className="hover:text-primary transition-colors">Terms of Service</Link>
                             <Link to="/sitemap" className="hover:text-primary transition-colors">Sitemap</Link>

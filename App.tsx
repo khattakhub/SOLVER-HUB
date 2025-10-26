@@ -16,7 +16,9 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 const SitemapPage = lazy(() => import('./pages/SitemapPage'));
-
+const AboutUsPage = lazy(() => import('./pages/AboutUsPage'));
+const ContactUsPage = lazy(() => import('./pages/ContactUsPage'));
+const DisclaimerPage = lazy(() => import('./pages/DisclaimerPage'));
 
 const LoadingSpinner: React.FC = () => (
     <div className="flex justify-center items-center h-screen">
@@ -54,6 +56,9 @@ const App: React.FC = () => {
                         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                         <Route path="/terms-of-service" element={<TermsOfServicePage />} />
                         <Route path="/sitemap" element={<SitemapPage />} />
+                        <Route path="/about" element={<AboutUsPage />} />
+                        <Route path="/contact" element={<ContactUsPage />} />
+                        <Route path="/disclaimer" element={<DisclaimerPage />} />
                         <Route 
                             path="/admin" 
                             element={

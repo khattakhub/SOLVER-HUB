@@ -1,7 +1,4 @@
 User-agent: *
 Allow: /
 
-User-agent: Google-Extended
-Allow: /
-
 Sitemap: https://solver-hub.vercel.app/sitemap.xml

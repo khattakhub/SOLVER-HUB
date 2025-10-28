@@ -1,10 +1,5 @@
 // REFACTORED to use Firebase v9 modular SDK to align with import maps and modern practices.
 import { initializeApp, FirebaseApp } from "firebase/app";
-// Explicitly import Firebase modules for their side-effects to ensure components
-// are registered correctly before use. This helps prevent initialization errors.
-import "firebase/auth";
-import "firebase/firestore";
-import "firebase/analytics";
 import { getAnalytics, isSupported as isAnalyticsSupported, Analytics } from "firebase/analytics";
 import { getAuth, Auth } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
@@ -26,23 +21,17 @@ let auth: Auth | undefined;
 let db: Firestore | undefined;
 let analytics: Analytics | undefined;
 
-// This structure prevents a failure in a non-critical service like Analytics
-// from blocking critical services like Auth and Firestore.
 try {
   if (firebaseConfig.apiKey && firebaseConfig.projectId) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
 
-    // Asynchronously initialize Analytics only if supported. This prevents race
-    // conditions and environment issues from crashing the app.
     isAnalyticsSupported().then(supported => {
       if (supported) {
         analytics = getAnalytics(app);
-      } else {
-        console.warn("Firebase Analytics is not supported in this environment.");
       }
-    }).catch(e => console.error("Error checking for Analytics support:", e));
+    });
 
   } else {
       console.warn("Firebase configuration is incomplete. Firebase features are disabled.");

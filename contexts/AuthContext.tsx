@@ -23,6 +23,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     useEffect(() => {
         if (!auth) {
+            console.error("Firebase auth is not initialized");
             setLoading(false);
             return;
         };
@@ -63,13 +64,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
     
-    // In a real app, you might have more complex logic for what defines an "admin".
-    // For now, any logged-in user is considered an admin.
     const isAdmin = !!user;
 
     return (
         <AuthContext.Provider value={{ user, isAdmin, loading, login, logout }}>
-            {children}
+            {!loading ? children : null}
         </AuthContext.Provider>
     );
 };

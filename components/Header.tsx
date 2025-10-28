@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 // FIX: Corrected import for react-router-dom components.
 import { Link, NavLink } from 'react-router-dom';
 import { NAV_LINKS } from '../constants';
-import { MenuIcon, XIcon, CodeIcon } from './icons';
 import ThemeToggle from './ThemeToggle';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
+
+const MenuIcon = lazy(() => import('./icons').then(module => ({ default: module.MenuIcon })));
+const XIcon = lazy(() => import('./icons').then(module => ({ default: module.XIcon })));
+const CodeIcon = lazy(() => import('./icons').then(module => ({ default: module.CodeIcon })));
 
 const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,7 +26,9 @@ const Header: React.FC = () => {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     <Link to="/" className="flex items-center space-x-2 text-2xl font-bold text-dark dark:text-light">
-                       <CodeIcon className="w-8 h-8 text-primary"/>
+                        <Suspense fallback={<div>...</div>}>
+                            <CodeIcon className="w-8 h-8 text-primary"/>
+                        </Suspense>
                        <span>{settings.siteName}</span>
                     </Link>
                     <div className="flex items-center">
@@ -47,7 +52,9 @@ const Header: React.FC = () => {
                         </div>
                         <div className="md:hidden ml-4">
                             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-primary">
-                                {isMenuOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+                                <Suspense fallback={<div>...</div>}>
+                                    {isMenuOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+                                </Suspense>
                             </button>
                         </div>
                     </div>

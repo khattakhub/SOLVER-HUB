@@ -5,8 +5,8 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useSiteSettings } from './contexts/SiteSettingsContext';
-import { CodeIcon } from './components/icons';
 
+const CodeIcon = lazy(() => import('./components/icons').then(module => ({ default: module.CodeIcon })));
 const HomePage = lazy(() => import('./pages/HomePage'));
 const ToolsPage = lazy(() => import('./pages/ToolsPage'));
 const ToolDetailPage = lazy(() => import('./pages/ToolDetailPage'));
@@ -52,7 +52,7 @@ const App: React.FC = () => {
                         <Route path="/tools" element={<ToolsPage />} />
                         <Route path="/tools/:toolId" element={<ToolDetailPage />} />
                         <Route path="/future" element={<FutureToolsPage />} />
-                        <Route path="/login" element={<LoginPage />} />
+                        <Rout  path="/login" element={<LoginPage />} />
                         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                         <Route path="/terms-of-service" element={<TermsOfServicePage />} />
                         <Route path="/sitemap" element={<SitemapPage />} />

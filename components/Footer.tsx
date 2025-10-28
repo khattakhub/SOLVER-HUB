@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 // FIX: Corrected import for react-router-dom components.
 import { Link } from 'react-router-dom';
-import { CodeIcon } from './icons';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
+
+const CodeIcon = lazy(() => import('./icons').then(module => ({ default: module.CodeIcon })));
 
 const Footer: React.FC = () => {
     const { settings } = useSiteSettings();
@@ -13,7 +14,9 @@ const Footer: React.FC = () => {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                     <div className="flex items-center space-x-2 justify-center md:justify-start">
-                        <CodeIcon className="w-7 h-7 text-primary"/>
+                        <Suspense fallback={<div>...</div>}>
+                            <CodeIcon className="w-7 h-7 text-primary"/>
+                        </Suspense>
                         <span className="text-xl font-bold">{settings.siteName}</span>
                     </div>
                     

@@ -51,37 +51,40 @@ const UnitConverter: React.FC = () => {
     const categoryUnits = category === 'Temperature' ? ['Celsius', 'Fahrenheit', 'Kelvin'] : Object.keys(units[category]);
 
     return (
-        <ToolContainer title="All-in-One Unit Converter">
-            <div className="flex flex-wrap justify-center gap-2 mb-4">
-                {(Object.keys(units) as Category[]).map(cat => (
-                    <button key={cat} onClick={() => handleCategoryChange(cat)} className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${category === cat ? 'bg-primary text-white' : 'bg-gray-200 text-secondary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'}`}>
-                        {cat}
-                    </button>
-                ))}
-            </div>
+        <div className="space-y-8">
+            <ToolContainer title="All-in-One Unit Converter">
+                <div className="flex flex-wrap justify-center gap-2 mb-4">
+                    {(Object.keys(units) as Category[]).map(cat => (
+                        <button key={cat} onClick={() => handleCategoryChange(cat)} className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${category === cat ? 'bg-primary text-white' : 'bg-gray-200 text-secondary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'}`}>
+                            {cat}
+                        </button>
+                    ))}
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <div className="w-full">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">From</label>
-                    <div className="flex mt-1">
-                        <input type="number" value={inputValue} onChange={e => setInputValue(e.target.value)} className="flex-grow p-3 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light" />
-                        <select value={fromUnit} onChange={e => setFromUnit(e.target.value)} className="p-3 border-t border-b border-r border-gray-300 rounded-r-md bg-gray-50 focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-700 dark:border-slate-600 dark:text-light">
-                            {categoryUnits.map(u => <option key={u} value={u}>{u}</option>)}
-                        </select>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <div className="w-full">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">From</label>
+                        <div className="flex mt-1">
+                            <input type="number" value={inputValue} onChange={e => setInputValue(e.target.value)} className="flex-grow p-3 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light" />
+                            <select value={fromUnit} onChange={e => setFromUnit(e.target.value)} className="p-3 border-t border-b border-r border-gray-300 rounded-r-md bg-gray-50 focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-700 dark:border-slate-600 dark:text-light">
+                                {categoryUnits.map(u => <option key={u} value={u}>{u}</option>)}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="text-center text-2xl font-bold hidden md:block pb-3 dark:text-light">=</div>
+                    <div className="w-full">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">To</label>
+                        <div className="flex mt-1">
+                            <div className="flex-grow p-3 bg-sky-50 border border-sky-200 rounded-l-md font-semibold text-dark dark:bg-slate-800 dark:border-slate-700 dark:text-light">{convertedValue}</div>
+                            <select value={toUnit} onChange={e => setToUnit(e.target.value)} className="p-3 border-t border-b border-r border-gray-300 rounded-r-md bg-gray-50 focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-700 dark:border-slate-600 dark:text-light">
+                                {categoryUnits.map(u => <option key={u} value={u}>{u}</option>)}
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div className="text-center text-2xl font-bold hidden md:block pb-3 dark:text-light">=</div>
-                <div className="w-full">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">To</label>
-                    <div className="flex mt-1">
-                        <div className="flex-grow p-3 bg-sky-50 border border-sky-200 rounded-l-md font-semibold text-dark dark:bg-slate-800 dark:border-slate-700 dark:text-light">{convertedValue}</div>
-                        <select value={toUnit} onChange={e => setToUnit(e.target.value)} className="p-3 border-t border-b border-r border-gray-300 rounded-r-md bg-gray-50 focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-700 dark:border-slate-600 dark:text-light">
-                             {categoryUnits.map(u => <option key={u} value={u}>{u}</option>)}
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div className="prose dark:prose-invert max-w-none mt-8">
+            </ToolContainer>
+
+            <div className="prose dark:prose-invert max-w-none">
                 <h2>How to Use Our Unit Converter Calculator</h2>
                 <p>Our unit converter calculator is designed to be simple and intuitive. This all-in-one unit converter makes it easy to perform a wide variety of conversions. It's a powerful unit converter app that you can use on any device.</p>
                 <h3>Select Category, Input Value, and Get Instant Results</h3>
@@ -110,7 +113,7 @@ const UnitConverter: React.FC = () => {
                 }
                 `}
             </script>
-        </ToolContainer>
+        </div>
     );
 };
 

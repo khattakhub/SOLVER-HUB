@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 // FIX: Corrected import for react-router-dom components.
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { CodeIcon } from '../components/icons';
+
+const CodeIcon = lazy(() => import('../components/icons').then(module => ({ default: module.CodeIcon })));
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState('admin@solverhub.com');
@@ -30,7 +31,9 @@ const LoginPage: React.FC = () => {
             <div className="w-full max-w-md p-8 space-y-8 bg-white dark:bg-slate-800 rounded-xl shadow-lg border dark:border-slate-700">
                 <div className="text-center">
                     <div className="inline-flex justify-center">
-                        <CodeIcon className="w-10 h-10 text-primary" />
+                        <Suspense fallback={<div>...</div>}>
+                            <CodeIcon className="w-10 h-10 text-primary" />
+                        </Suspense>
                     </div>
                     <h2 className="mt-4 text-3xl font-extrabold text-center text-dark dark:text-light">
                         Admin Login

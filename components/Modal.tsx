@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
-import { XIcon } from './icons';
+import React, { useEffect, lazy, Suspense } from 'react';
+
+const XIcon = lazy(() => import('./icons').then(module => ({ default: module.XIcon })));
 
 interface ModalProps {
     isOpen: boolean;
@@ -39,7 +40,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
                 <div className="flex justify-between items-center p-4 border-b dark:border-slate-700">
                     <h2 className="text-xl font-bold text-dark dark:text-light">{title}</h2>
                     <button onClick={onClose} className="text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-primary">
-                        <XIcon className="w-6 h-6" />
+                        <Suspense fallback={<div>...</div>}>
+                            <XIcon className="w-6 h-6" />
+                        </Suspense>
                     </button>
                 </div>
                 <div className="p-6">

@@ -28,22 +28,24 @@ const TextSummarizer: React.FC = () => {
     }, [text]);
 
     return (
-        <ToolContainer title="Free AI Text Summarizer">
-            <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Paste your long text here..."
-                className="w-full h-48 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light"
-            />
-            <button
-                onClick={handleSummarize}
-                disabled={isLoading}
-                className="w-full bg-primary text-white font-semibold px-6 py-3 rounded-md hover:bg-primary-dark transition-colors disabled:bg-gray-400"
-            >
-                {isLoading ? 'Summarizing...' : 'Summarize Text'}
-            </button>
-            <ToolResult isLoading={isLoading} error={error} result={result} title="Summary" />
-            <div className="prose dark:prose-invert max-w-none mt-8">
+        <div className="space-y-8">
+            <ToolContainer title="Free AI Text Summarizer">
+                <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="Paste your long text here..."
+                    className="w-full h-48 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light"
+                />
+                <button
+                    onClick={handleSummarize}
+                    disabled={isLoading}
+                    className="w-full bg-primary text-white font-semibold px-6 py-3 rounded-md hover:bg-primary-dark transition-colors disabled:bg-gray-400"
+                >
+                    {isLoading ? 'Summarizing...' : 'Summarize Text'}
+                </button>
+                <ToolResult isLoading={isLoading} error={error} result={result} title="Summary" />
+            </ToolContainer>
+            <div className="prose dark:prose-invert max-w-none">
                 <h2>How Our Text Summarizer Works</h2>
                 <p>Our AI text summarizer uses advanced natural language processing to understand the context of your text and extract the most important information. Simply paste your text into the box above and click "Summarize Text" to get a concise summary in seconds.</p>
                 <h3>Summarize Articles, Essays, and Documents Instantly</h3>
@@ -82,7 +84,7 @@ const TextSummarizer: React.FC = () => {
                 }
                 `}
             </script>
-        </ToolContainer>
+        </div>
     );
 };
 

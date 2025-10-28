@@ -97,7 +97,7 @@ export const checkGrammar = async (text: string): Promise<string> => {
     }
 };
 
-export const getTextFromImage = async (base64Image: string, mimeType: string): Promise<string> => {
+export const imageToText = async (base64Image: string, mimeType: string): Promise<string> => {
     const ai = getAi();
     if (!ai) {
         throw new Error(initializationError || API_KEY_ERROR_MESSAGE);

@@ -1,3 +1,4 @@
+import { PDFDocument } from 'pdf-lib';
 
 export const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -15,4 +16,19 @@ export const fileToBase64 = (file: File): Promise<string> => {
         };
         reader.onerror = (error) => reject(error);
     });
+};
+
+export const mergePdfs = async (files: File[]): Promise<Blob> => {
+    const mergedPdf = await PDFDocument.create();
+    for (const file of files) {
+        const pdfBytes = await file.arrayBuffer();
+        const pdf = await PDFDocument.load(pdfBytes);
+        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+        copiedPages.forEach((page) => {
+            mergedPdf.addPage(page);
+        });
+    }
+
+    const mergedPdfBytes = await mergedPdf.save();
+    return new Blob([mergedPdfBytes], { type: 'application/pdf' });
 };

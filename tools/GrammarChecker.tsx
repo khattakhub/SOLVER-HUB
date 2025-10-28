@@ -28,22 +28,24 @@ const GrammarChecker: React.FC = () => {
     }, [text]);
 
     return (
-        <ToolContainer title="Free Online Grammar and Spell Checker">
-            <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Type or paste your text here..."
-                className="w-full h-48 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light"
-            />
-            <button
-                onClick={handleCheck}
-                disabled={isLoading}
-                className="w-full bg-primary text-white font-semibold px-6 py-3 rounded-md hover:bg-primary-dark transition-colors disabled:bg-gray-400"
-            >
-                {isLoading ? 'Checking...' : 'Fix Grammar'}
-            </button>
-            <ToolResult isLoading={isLoading} error={error} result={result} title="Corrected Text" />
-            <div className="prose dark:prose-invert max-w-none mt-8">
+        <div className="space-y-8">
+            <ToolContainer title="Free Online Grammar and Spell Checker">
+                <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="Type or paste your text here..."
+                    className="w-full h-48 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition dark:bg-slate-800 dark:border-slate-600 dark:text-light"
+                />
+                <button
+                    onClick={handleCheck}
+                    disabled={isLoading}
+                    className="w-full bg-primary text-white font-semibold px-6 py-3 rounded-md hover:bg-primary-dark transition-colors disabled:bg-gray-400"
+                >
+                    {isLoading ? 'Checking...' : 'Fix Grammar'}
+                </button>
+                <ToolResult isLoading={isLoading} error={error} result={result} title="Corrected Text" />
+            </ToolContainer>
+            <div className="prose dark:prose-invert max-w-none">
                 <h2>Why Use Our Free Grammar and Spell Checker?</h2>
                 <p>Our free online grammar and spell checker helps you write better by identifying and correcting errors in your text. Whether you're writing an email, an essay, or a report, our tool ensures your writing is clear, concise, and error-free. We offer the best grammar checker capabilities to improve your writing.</p>
                 <h3>Instant and Accurate AI-Powered Corrections</h3>
@@ -75,7 +77,7 @@ const GrammarChecker: React.FC = () => {
                 }
                 `}
             </script>
-        </ToolContainer>
+        </div>
     );
 };
 

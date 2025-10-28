@@ -51,7 +51,7 @@ const UnitConverter: React.FC = () => {
     const categoryUnits = category === 'Temperature' ? ['Celsius', 'Fahrenheit', 'Kelvin'] : Object.keys(units[category]);
 
     return (
-        <ToolContainer title="Convert Units Instantly">
+        <ToolContainer title="All-in-One Unit Converter">
             <div className="flex flex-wrap justify-center gap-2 mb-4">
                 {(Object.keys(units) as Category[]).map(cat => (
                     <button key={cat} onClick={() => handleCategoryChange(cat)} className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${category === cat ? 'bg-primary text-white' : 'bg-gray-200 text-secondary hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'}`}>
@@ -81,6 +81,35 @@ const UnitConverter: React.FC = () => {
                     </div>
                 </div>
             </div>
+            <div className="prose dark:prose-invert max-w-none mt-8">
+                <h2>How to Use Our Unit Converter Calculator</h2>
+                <p>Our unit converter calculator is designed to be simple and intuitive. This all-in-one unit converter makes it easy to perform a wide variety of conversions. It's a powerful unit converter app that you can use on any device.</p>
+                <h3>Select Category, Input Value, and Get Instant Results</h3>
+                <p>To get started, simply choose a category, such as Length, Weight, or Temperature. Then, enter a value in the "From" field and select your units. The converted value will be displayed instantly. It's as easy as using the Google unit converter.</p>
+                <h2>Supported Unit Conversions</h2>
+                <p>Our tool supports a wide range of conversions, making it a comprehensive unit converter list. You can convert length, weight, temperature, and more.</p>
+                <h3>Length, Weight, and Temperature</h3>
+                <p>Our weight unit converter is perfect for converting between kilograms, pounds, and ounces. You can also use our tool to convert between different units of length and temperature, such as Celsius and Fahrenheit.</p>
+                <h2>Why Choose Our Unit Converter?</h2>
+                <p>Our tool is fast, accurate, and easy to use. It's the perfect unit converter for students, professionals, and anyone who needs to make quick conversions. Need to convert currencies? Check out our <a href="/currency-converter">Currency Converter</a>.</p>
+            </div>
+            <script type="application/ld+json">
+                {`
+                {
+                    "@context": "https://schema.org",
+                    "@type": "SoftwareApplication",
+                    "name": "Free Unit Converter",
+                    "applicationCategory": "Utilities",
+                    "operatingSystem": "Any",
+                    "offers": {
+                        "@type": "Offer",
+                        "price": "0"
+                    },
+                    "description": "An all-in-one unit converter that allows you to easily convert between length, weight, volume, temperature, area, and more.",
+                    "url": "https://solver-hub.vercel.app/unit-converter"
+                }
+                `}
+            </script>
         </ToolContainer>
     );
 };

@@ -1,8 +1,13 @@
-
-
 import React, { lazy } from 'react';
 import { Tool, ToolCategory } from './types';
-import { SummarizeIcon, GrammarIcon, OcrIcon, UnitConvertIcon, CurrencyIcon, PdfIcon } from './components/icons';
+
+// FIX: Use React.lazy to dynamically import icons to reduce the initial bundle size.
+const SummarizeIcon = lazy(() => import('./components/icons').then(module => ({ default: module.SummarizeIcon })));
+const GrammarIcon = lazy(() => import('./components/icons').then(module => ({ default: module.GrammarIcon })));
+const OcrIcon = lazy(() => import('./components/icons').then(module => ({ default: module.OcrIcon })));
+const UnitConvertIcon = lazy(() => import('./components/icons').then(module => ({ default: module.UnitConvertIcon })));
+const CurrencyIcon = lazy(() => import('./components/icons').then(module => ({ default: module.CurrencyIcon })));
+const PdfIcon = lazy(() => import('./components/icons').then(module => ({ default: module.PdfIcon })));
 
 export const TOOLS: Tool[] = [
     {

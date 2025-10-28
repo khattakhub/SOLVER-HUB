@@ -32,7 +32,7 @@ const CurrencyConverter: React.FC = () => {
     }, [amount, fromCurrency, toCurrency]);
 
     return (
-        <ToolContainer title="Convert Currencies">
+        <ToolContainer title="Real-Time Currency Converter">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                 <div>
                     <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-slate-300">Amount</label>
@@ -84,6 +84,36 @@ const CurrencyConverter: React.FC = () => {
                     </div>
                 </div>
             )}
+             <div className="prose dark:prose-invert max-w-none mt-8">
+                <h2>How Our Exchange Rate Calculator Works</h2>
+                <p>Our currency converter online tool makes it easy to calculate exchange rates. This is not just a currency converter app, but a comprehensive solution for all your currency conversion needs. It works similarly to the Google currency converter or Xe Currency Converter, providing real-time data.</p>
+                <h3>Enter Amount, Select Currencies, and Get Instant Conversion</h3>
+                <p>To get started, simply enter an amount, select the currency you want to convert from, and choose the currency you want to convert to. Our tool will instantly provide you with the converted value based on the latest currency exchange rate today.</p>
+                <h2>Why Use Our Currency Converter?</h2>
+                <h3>Live and Accurate Exchange Rates</h3>
+                <p>We provide live exchange rates to ensure that you get the most accurate conversions. Our data is updated regularly to reflect the latest market changes, making us a reliable choice for a currency exchange rate tool.</p>
+                <h3>Supports Major World Currencies</h3>
+                <p>Our tool supports all major currencies, making it an all-currency converter. Whether you need to convert USD, EUR, JPY, or any other currency, we have you covered.</p>
+                <h2>Your Go-To Forex Converter</h2>
+                <p>Our currency converter is perfect for travelers, online shoppers, and businesses. It's a reliable and easy-to-use tool for all your forex conversion needs. Need to convert other units? Check out our <a href="/unit-converter">Unit Converter</a>.</p>
+            </div>
+            <script type="application/ld+json">
+                {`
+                {
+                    "@context": "https://schema.org",
+                    "@type": "SoftwareApplication",
+                    "name": "Free Currency Converter",
+                    "applicationCategory": "Finance",
+                    "operatingSystem": "Any",
+                    "offers": {
+                        "@type": "Offer",
+                        "price": "0"
+                    },
+                    "description": "A free currency converter that provides live exchange rates for major currencies. Easily convert between USD, EUR, JPY, and more.",
+                    "url": "https://solver-hub.vercel.app/currency-converter"
+                }
+                `}
+            </script>
         </ToolContainer>
     );
 };
